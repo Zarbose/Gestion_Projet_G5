@@ -1,0 +1,15 @@
+{
+  "name": "Gestion_Projet_G5",
+  "version": "1.0.0",
+  "description": "Gestion de Projets - M1 INFO",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "repository": "git@github.com:Zarbose/Gestion_Projet_G5.git",
+  "author": "auroreLeclerc <aurore.leclerc.lefranc@outlook.fr>",
+  "license": "MIT",
+  "devDependencies": {
+    "express": "^4.18.2"
+  }
+}
