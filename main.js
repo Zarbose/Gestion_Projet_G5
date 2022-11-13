@@ -17,11 +17,17 @@ const wsServer = new WebSocket.Server({
     server: server
 });
 
+function httpWarning(code, msg = null) {
+    console.warn(createError(code, msg));
+    return createError(code, msg);
+}
+
 let sockets = {};
 wsServer.on('connection', function(socket) {  
     // When you receive a message, send that message to every socket.
     socket.on('message', function(buffer) {
         const data = JSON.parse(buffer.toString());
+        if (!data.type || !data.channel) return httpWarning(406);
         console.log("Message", data);
         switch (data.type) {
             case "login":
@@ -33,18 +39,28 @@ wsServer.on('connection', function(socket) {
                 }
             break;
 
-            default:
-                createError(501, `${data.type} not found`);
+            case "message":
+                if (sockets[data.channel]) {
+                    sockets[data.channel].forEach(s => s.send(buffer));
+                }
+                else return httpWarning(406);
             break;
+
+            default:
+                return httpWarning(501, `${data.type} not found`);
+            // break;
         }
-        sockets[data.channel].forEach(s => s.send(buffer));
     });
   
     // When a socket closes, or disconnects, remove it from the array.
     socket.on('close', function() {
+        console.log("WebSocket disconnected");
         for (const channel in sockets) {
             if (Object.hasOwnProperty.call(sockets, channel)) {
-                sockets[channel] = sockets[channel].filter(s => s !== socket);   
+                sockets[channel] = sockets[channel].filter(s => s !== socket);
+                if (sockets[channel].length <= 0) {
+                    delete sockets[channel];
+                }
             }
         }
     });
