@@ -53,9 +53,6 @@ socket.onmessage = async function (message) {
 //    } 
 // };
   
-socket.onopen = function () { 
-   console.log("Connected"); 
-};
   
 socket.onerror = function (err) { 
    console.log("Got error", err); 
@@ -66,4 +63,7 @@ socket.onopen = () => {
 		type: "login",
 		channel: "testChannel"
 	}));
+	socket.onopen = function () { 
+	   console.log("Connected"); 
+	};
 };

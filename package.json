@@ -11,5 +11,9 @@
   "license": "MIT",
   "devDependencies": {
     "express": "^4.18.2"
+  },
+  "dependencies": {
+    "http-errors": "^2.0.0",
+    "ws": "^8.11.0"
   }
 }

@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const http = require('http');
+const createError = require('http-errors');
 const server = http.createServer(app);
 
 // Handle requests for static files
@@ -33,8 +34,8 @@ wsServer.on('connection', function(socket) {
             break;
 
             default:
-                throw new RangeError(`${data.type} not found`);
-            // break;
+                createError(501, `${data.type} not found`);
+            break;
         }
         sockets[data.channel].forEach(s => s.send(buffer));
     });
@@ -53,3 +54,20 @@ wsServer.on('connection', function(socket) {
     });
 });
 console.log("Local WebSocket Server Started on port 3000...");
+
+app.get("/API", (req, res) => {
+    const url = new URL(req.headers.host + req.url);
+    const urlParam = url.searchParams;
+    if (urlParam.has("channels")) {
+        const channels = [];
+        for (const channel in sockets) {
+            if (Object.hasOwnProperty.call(sockets, channel)) {
+                channels.push(channel);
+            }
+        }
+        res.send(channels);
+    }
+    else {
+        res.status(404).send(`${req.url} not found`);
+    }
+});  
