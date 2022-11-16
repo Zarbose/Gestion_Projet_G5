@@ -1,15 +1,17 @@
 {
-  "name": "Gestion_Projet_G5",
+  "name": "gestion_projet_g5",
   "version": "1.0.0",
-  "description": "Gestion de Projets - M1 INFO",
+  "description": "Gestion de Projets - M1 INFO - Groupe 5",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "eslint": "npm init @eslint/config"
   },
   "repository": "git@github.com:Zarbose/Gestion_Projet_G5.git",
   "author": "auroreLeclerc <aurore.leclerc.lefranc@outlook.fr>",
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^8.0.1",
     "express": "^4.18.2"
   },
   "dependencies": {

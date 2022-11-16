@@ -1,19 +1,19 @@
 fetch(`${window.location.origin}/API?channels`).then(response => {
-    const input = document.getElementById("existingChannels");
-    response.json().then(json => {
-        if (json.length != 0) {
-            for (const channel of json) {
-                input.insertAdjacentHTML("afterbegin", `<option value="${channel}">${channel}</option>`);
-            }
-        }
-        else {
-            input.disabled = true;
-        }
-    });
+	const input = document.getElementById("existingChannels");
+	response.json().then(json => {
+		if (json.length != 0) {
+			for (const channel of json) {
+				input.insertAdjacentHTML("afterbegin", `<option value="${channel}">${channel}</option>`);
+			}
+		}
+		else {
+			input.disabled = true;
+		}
+	});
 });
 
-const socket = new WebSocket('ws://localhost:3000/');
-let channel = '';
+const socket = new WebSocket("ws://localhost:3000/");
+let channel = "";
 
 //handle messages from the server 
 socket.onmessage = function (message) {
@@ -23,12 +23,12 @@ socket.onmessage = function (message) {
 		// console.log("Got message", data);
 
 		switch(data.type) {
-			case "message":
-				console.info(`Channel ${data.type}: ${data.message}`);
+		case "message":
+			console.info(`Channel ${data.type}: ${data.message}`);
 			break;
 
-			default:
-				throw new Error(`Internal error, ${data.type} no action to be done`);
+		default:
+			throw new Error(`Internal error, ${data.type} no action to be done`);
 			// break;
 		}
 	});
@@ -57,5 +57,20 @@ document.getElementById("send").addEventListener("click", () => {
 		type: "message",
 		channel: channel,
 		message: message
-	}))
+	}));
 });
+
+if (navigator.mediaDevices) {
+	navigator.mediaDevices.getUserMedia({
+		video: true,
+		audio: false
+	}).then(function onSuccess(stream) {
+		const video = document.getElementById("webcam");
+		video.autoplay = true;
+		video.srcObject = stream;
+	}).catch(function onError() {
+		console.warn("There has been a problem retrieving the streams - are you running on file:/// or did you disallow access?");
+	});
+} else {
+	window.alert("getUserMedia is not supported in this browser.");
+}
