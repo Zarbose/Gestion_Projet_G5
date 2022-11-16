@@ -27,6 +27,10 @@ socket.onmessage = function (message) {
 			console.info(`Channel ${data.type}: ${data.message}`);
 			break;
 
+		case "RTCPeerConnection":
+			console.info(`Channel ${data.type}: RTCPeerConnection ${data.candidate}`);
+			break;
+
 		default:
 			throw new Error(`Internal error, ${data.type} no action to be done`);
 			// break;
@@ -60,17 +64,41 @@ document.getElementById("send").addEventListener("click", () => {
 	}));
 });
 
-if (navigator.mediaDevices) {
-	navigator.mediaDevices.getUserMedia({
-		video: true,
-		audio: false
-	}).then(function onSuccess(stream) {
-		const video = document.getElementById("webcam");
-		video.autoplay = true;
-		video.srcObject = stream;
-	}).catch(function onError() {
-		console.warn("There has been a problem retrieving the streams - are you running on file:/// or did you disallow access?");
+
+const video = document.getElementById("webcam");
+navigator.mediaDevices.getUserMedia({
+	video: {
+		width: 800,
+		height: 600,
+		frameRate: {
+			ideal: 25,
+			max: 30
+		}
+	},
+	audio: true
+}).then(mediaStream => {
+	video.muted = true;
+	video.controls = false;
+	video.autoplay = true;
+	video.srcObject = mediaStream;
+}).catch(error => {
+	if (error.name === "NotAllowedError") {
+		console.warn("Webcam", error.message);
+	} else {
+		throw error;
+	}
+});
+
+document.getElementById("sendVideo").addEventListener("click", () => {
+	const localConnection = new RTCPeerConnection();
+	localConnection.addTrack(video.srcObject.getVideoTracks()[0]);
+	
+	localConnection.createOffer().then(offer => {
+		socket.send(JSON.stringify({
+			type: "RTCPeerConnection",
+			channel: channel,
+			offer: offer
+		}));
+		localConnection.setLocalDescription(offer);
 	});
-} else {
-	window.alert("getUserMedia is not supported in this browser.");
-}
+});

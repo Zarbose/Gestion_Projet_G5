@@ -40,6 +40,7 @@ wsServer.on("connection", function(socket) {
 			break;
 
 		case "message":
+		case "RTCPeerConnection":
 			if (sockets[data.channel]) {
 				sockets[data.channel].forEach(s => s.send(buffer));
 			}
