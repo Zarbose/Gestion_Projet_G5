@@ -15,7 +15,6 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 const socket = new WebSocket("ws://localhost:3000/");
 let channel = "";
 
-//handle messages from the server 
 socket.onmessage = function (message) {
 	message.data.text().then(string => {
 		const data = JSON.parse(string);
@@ -26,11 +25,22 @@ socket.onmessage = function (message) {
 		case "message":
 			console.info(`Channel ${data.type}: ${data.message}`);
 			break;
-
-		case "RTCPeerConnection":
-			console.info(`Channel ${data.type}: RTCPeerConnection ${data.candidate}`);
+		case "RTCPeerOffer":
+			console.info(`Channel ${data.type}: RTCPeerOffer ${data.candidate}`);
 			break;
-
+		case "login":
+			if (data.state === "success") {
+				let form  = document.getElementById("choose");
+				for (const element of form.elements) {
+					element.disabled = true;
+				}
+			}
+			else {
+				const input = document.querySelector("form#choose input");
+				input.setCustomValidity("Channel invalide ou déjà pris !");
+				input.reportValidity();
+			}
+			break;
 		default:
 			throw new Error(`Internal error, ${data.type} no action to be done`);
 			// break;
@@ -45,7 +55,7 @@ socket.onopen = function () {
 	console.log("Connected"); 
 };
 
-document.getElementById("choose").addEventListener("click", () => {
+document.getElementById("choose").addEventListener("submit", () => {
 	const existingChannels = document.getElementById("existingChannels").value;
 	const newChannel = document.getElementById("newChannel").value;
 	channel = !existingChannels ? newChannel : existingChannels;
@@ -55,7 +65,7 @@ document.getElementById("choose").addEventListener("click", () => {
 	}));
 });
 
-document.getElementById("send").addEventListener("click", () => {
+document.getElementById("send").addEventListener("submit", () => {
 	const message = document.getElementById("message").value;
 	socket.send(JSON.stringify({
 		type: "message",
@@ -89,13 +99,13 @@ navigator.mediaDevices.getUserMedia({
 	}
 });
 
-document.getElementById("sendVideo").addEventListener("click", () => {
+document.getElementById("sendVideo").addEventListener("submit", () => {
 	const localConnection = new RTCPeerConnection();
 	localConnection.addTrack(video.srcObject.getVideoTracks()[0]);
 	
 	localConnection.createOffer().then(offer => {
 		socket.send(JSON.stringify({
-			type: "RTCPeerConnection",
+			type: "RTCPeerOffer",
 			channel: channel,
 			offer: offer
 		}));

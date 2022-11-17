@@ -17,43 +17,59 @@ const wsServer = new WebSocket.Server({
 	server: server
 });
 
+/**
+ * @description Must return function because there is no throw !
+ * @param {int} code 
+ * @param {string} msg 
+ * @returns
+ */
 function httpWarning(code, msg = null) {
 	console.warn(createError(code, msg));
 	return createError(code, msg);
 }
 
 let sockets = {};
-wsServer.on("connection", function(socket) {  
-	// When you receive a message, send that message to every socket.
+wsServer.on("connection", function(socket) {
 	socket.on("message", function(buffer) {
 		const data = JSON.parse(buffer.toString());
-		if (!data.type || !data.channel) return httpWarning(406);
-		console.log("Message", data);
-		switch (data.type) {
-		case "login":
-			if (sockets[data.channel]) {
-				sockets[data.channel].push(socket);
-			}
-			else {
-				sockets[data.channel] = [ socket ];
-			}
-			break;
-
-		case "message":
-		case "RTCPeerConnection":
-			if (sockets[data.channel]) {
-				sockets[data.channel].forEach(s => s.send(buffer));
-			}
-			else return httpWarning(406);
-			break;
-
-		default:
-			return httpWarning(501, `${data.type} not found`);
-            // break;
+		if (!data.type || !data.channel) {
+			socket.send(JSON.stringify({
+				type: "error",
+				msg: "406 Incomplete"
+			}));
+			return httpWarning(406, "Incomplete");
 		}
+		console.log("GOT", data);
+		/* eslint-disable indent */
+		switch (data.type) {
+			case "login":
+				if (sockets[data.channel]) {
+					sockets[data.channel].push(socket);
+				}
+				else {
+					sockets[data.channel] = [ socket ];
+				}
+				socket.send(Buffer.from(JSON.stringify({
+					type: "login",
+					state: "success"
+				})));
+			break;
+
+			case "message":
+			case "RTCPeerOffer":
+				if (sockets[data.channel]) {
+					sockets[data.channel].forEach(s => s.send(buffer));
+				}
+				else return httpWarning(406, "No channel");
+			break;
+
+			default:
+				return httpWarning(501, `${data.type} not found`);
+			// break;
+		}
+		/* eslint-enable indent */
 	});
-  
-	// When a socket closes, or disconnects, remove it from the array.
+
 	socket.on("close", function() {
 		console.log("WebSocket disconnected");
 		for (const channel in sockets) {
@@ -61,6 +77,7 @@ wsServer.on("connection", function(socket) {
 				sockets[channel] = sockets[channel].filter(s => s !== socket);
 				if (sockets[channel].length <= 0) {
 					delete sockets[channel];
+					console.log(`Channel ${channel} has been deleted`);
 				}
 			}
 		}

@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-    <html lang="fr">
-        <head>
-        <title>Prototype</title>
-    </head>
-    <body>
-        <div>
-            <input id="newChannel" type="text" placeholder="New channel">
-            <select id="existingChannels">
-            </select>
-            <button id="choose">Rentrer dans le channel</button>
-        </div>
-        <div>
-            <input id="message" type="text" placeholder="Message">
-            <button id="send">Envoyer le message dans le channel</button>
-        </div>
-        <div>
-            <video id="webcam" width="400" height="200"></video>
-            <button id="sendVideo">Partager sa webcam</button>
-        </div>
-    </body>
-    <script src="./script.js"></script>
+<html lang="fr">
+	<head>
+		<title>Prototype</title>
+	</head>
+	<body>
+		<form id="choose" action="javascript:void(0);">
+			<input id="newChannel" type="text" placeholder="New channel">
+			<select id="existingChannels">
+			</select>
+			<input type="submit" value="Rentrer dans le channel">
+		</form>
+		<form id="send" action="javascript:void(0);">
+			<input id="message" type="text" placeholder="Message">
+			<input type="submit" value="Envoyer le message dans le channel">
+		</form>
+		<form id="sendVideo" action="javascript:void(0);">
+			<video id="webcam" width="400" height="200"></video>
+			<input type="submit" value="Partager sa webcam">
+		</form>
+	</body>
+	<script src="./script.js"></script>
 </html>
