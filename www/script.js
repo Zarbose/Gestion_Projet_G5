@@ -19,34 +19,14 @@ socket.onmessage = function (message) {
 	message.data.text().then(string => {
 		const data = JSON.parse(string);
 	
-		console.log("WebSocket message", data);
+		console.info("Socket received", data.type);
 
 		switch(data.type) {
 		case "message":
 			console.info(`Channel ${data.type}: ${data.message}`);
 			break;
 		case "RTCPeerOffer": {
-			console.info(`Channel ${data.type}: RTCPeerOffer`, new RTCSessionDescription(data.offer));
-
-			// const remoteConnection = new RTCPeerConnection();
-
-			// remoteConnection.setRemoteDescription(data.offer).then(() => {
-			// 	const video = document.getElementById("webcam");
-			// 	// remoteConnection.addStream(video.srcObject);
-			// 	remoteConnection.addTrack(video.srcObject.getVideoTracks()[0], video.srcObject);
-			// }).then(() =>
-			// 	remoteConnection.createAnswer().then(answer => {
-			// 		remoteConnection.setLocalDescription(answer).then(() => {
-			// 			socket.send(JSON.stringify({
-			// 				type: "RTCPeerAnswer",
-			// 				channel: channel,
-			// 				answer: remoteConnection.localDescription.toJSON()
-			// 			}));
-			// 		});
-			// 	})
-			// ).catch(error =>
-			// 	console.error(error)
-			// );
+			// console.log(`Channel ${data.type}: RTCPeerOffer`, new RTCSessionDescription(data.offer));
 
 			localConnection.setRemoteDescription(new RTCSessionDescription(data.offer)).then(() => {
 				localConnection.createAnswer().then(answer => {
@@ -65,15 +45,15 @@ socket.onmessage = function (message) {
 		}
 		case "RTCPeerAnswer": {
 			localConnection.setRemoteDescription(new RTCSessionDescription(data.answer)).then(() => {
-				console.info("Link established");
+				console.info("RTCPeerConnection established");
 			}).catch(error =>
 				console.error(error, new RTCSessionDescription(data.answer))
 			);
 			break;
 		}
-		case "icecandidate": {
+		case "IceCandidate": {
 			localConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).then(
-				console.log("Candidate added")
+				console.log("IceCandidate added")
 			).catch(error =>
 				console.error(error, new RTCIceCandidate(data.candidate), localConnection.localDescription)
 			);
@@ -105,10 +85,10 @@ socket.onmessage = function (message) {
 
 const localConnection = new RTCPeerConnection();
 localConnection.addEventListener("icecandidate", (event) => {
-	console.info("icecandidate", event.candidate);
+	console.info("New IceCandidate", event.candidate);
 	if (event.candidate) {
 		socket.send(JSON.stringify({
-			type: "icecandidate",
+			type: "IceCandidate",
 			channel: channel,
 			candidate: event.candidate.toJSON()
 		}));
@@ -181,7 +161,6 @@ navigator.mediaDevices.getUserMedia({
 
 document.getElementById("sendVideo").addEventListener("submit", () => {
 	const video = document.getElementById("webcam");
-	// localConnection.addStream(video.srcObject);
 	localConnection.addTrack(video.srcObject.getVideoTracks()[0], video.srcObject);
 
 	localConnection.createOffer().then(offer => 
