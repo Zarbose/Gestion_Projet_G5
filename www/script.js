@@ -19,7 +19,7 @@ socket.onmessage = function (message) {
 	message.data.text().then(string => {
 		const data = JSON.parse(string);
 	
-		console.log("Got message", data);
+		console.log("WebSocket message", data);
 
 		switch(data.type) {
 		case "message":
@@ -30,28 +30,53 @@ socket.onmessage = function (message) {
 
 			// const remoteConnection = new RTCPeerConnection();
 
-			// 	remoteConnection.setRemoteDescription(data.candidate).then(() =>
-			// 		navigator.mediaDevices.getUserMedia(mediaConstraints))
-			// 	.then((stream) => {
-			// 	  document.getElementById("local_video").srcObject = stream;
-			// 	  return myPeerConnection.addStream(stream);
+			// remoteConnection.setRemoteDescription(data.offer).then(() => {
+			// 	const video = document.getElementById("webcam");
+			// 	// remoteConnection.addStream(video.srcObject);
+			// 	remoteConnection.addTrack(video.srcObject.getVideoTracks()[0], video.srcObject);
+			// }).then(() =>
+			// 	remoteConnection.createAnswer().then(answer => {
+			// 		remoteConnection.setLocalDescription(answer).then(() => {
+			// 			socket.send(JSON.stringify({
+			// 				type: "RTCPeerAnswer",
+			// 				channel: channel,
+			// 				answer: remoteConnection.localDescription.toJSON()
+			// 			}));
+			// 		});
 			// 	})
-			// 	.then(() => myPeerConnection.createAnswer())
-			// 	.then((answer) => myPeerConnection.setLocalDescription(answer))
-			// 	.then(() => {
-			// 	  // Send the answer to the remote peer using the signaling server
-			// 	})
-			// 	.catch(handleGetUserMediaError);
-			// }
+			// ).catch(error =>
+			// 	console.error(error)
+			// );
 
-
-			const videoChannel = document.getElementById("videoChannel");
-			const video = document.createElement("video");
-			video.muted = true;
-			video.controls = false;
-			video.autoplay = true;
-			video.srcObject = null;
-			videoChannel.appendChild(video);
+			localConnection.setRemoteDescription(new RTCSessionDescription(data.offer)).then(() => {
+				localConnection.createAnswer().then(answer => {
+					localConnection.setLocalDescription(answer).then(() => {
+						socket.send(JSON.stringify({
+							type: "RTCPeerAnswer",
+							channel: channel,
+							answer: localConnection.localDescription.toJSON()
+						}));
+					});
+				});
+			}).catch(error =>
+				console.error(error, new RTCSessionDescription(data.offer))
+			);
+			break;
+		}
+		case "RTCPeerAnswer": {
+			localConnection.setRemoteDescription(new RTCSessionDescription(data.answer)).then(() => {
+				console.info("Link established");
+			}).catch(error =>
+				console.error(error, new RTCSessionDescription(data.answer))
+			);
+			break;
+		}
+		case "icecandidate": {
+			localConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).then(
+				console.log("Candidate added")
+			).catch(error =>
+				console.error(error, new RTCIceCandidate(data.candidate), localConnection.localDescription)
+			);
 			break;
 		}
 		case "login":
@@ -80,14 +105,34 @@ socket.onmessage = function (message) {
 
 const localConnection = new RTCPeerConnection();
 localConnection.addEventListener("icecandidate", (event) => {
-	console.info(event);
+	console.info("icecandidate", event.candidate);
+	if (event.candidate) {
+		socket.send(JSON.stringify({
+			type: "icecandidate",
+			channel: channel,
+			candidate: event.candidate.toJSON()
+		}));
+	}
 });
+
+localConnection.ontrack = (event) => {
+	const videoChannel = document.getElementById("videoChannel");
+	const video = document.createElement("video");
+	video.muted = false;
+	video.controls = false;
+	video.autoplay = true;
+	video.srcObject = event.streams[0];
+	video.width = 400;
+	video.height = 200;
+	videoChannel.appendChild(video);
+	console.info("New stream added in DOM");
+};
 
 socket.onerror = function (err) { 
 	console.log("Got error", err); 
 };
 socket.onopen = function () { 
-	console.log("Connected"); 
+	console.log("Connected");
 };
 
 document.getElementById("choose").addEventListener("submit", () => {
@@ -136,7 +181,8 @@ navigator.mediaDevices.getUserMedia({
 
 document.getElementById("sendVideo").addEventListener("submit", () => {
 	const video = document.getElementById("webcam");
-	localConnection.addTrack(video.srcObject.getVideoTracks()[0]);
+	// localConnection.addStream(video.srcObject);
+	localConnection.addTrack(video.srcObject.getVideoTracks()[0], video.srcObject);
 
 	localConnection.createOffer().then(offer => 
 		localConnection.setLocalDescription(offer)

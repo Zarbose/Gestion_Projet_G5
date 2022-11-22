@@ -40,41 +40,47 @@ wsServer.on("connection", function(socket) {
 			return httpWarning(406, "Incomplete");
 		}
 		console.log("GOT", data);
-		/* eslint-disable indent */
 		switch (data.type) {
-			case "login":
-				if (sockets[data.channel]) {
-					sockets[data.channel].push(socket);
-				}
-				else {
-					sockets[data.channel] = [ socket ];
-				}
-				socket.send(Buffer.from(JSON.stringify({
-					type: "login",
-					state: "success"
-				})));
+		case "login":
+			if (sockets[data.channel]) {
+				sockets[data.channel].push(socket);
+			}
+			else {
+				sockets[data.channel] = [ socket ];
+			}
+			socket.send(Buffer.from(JSON.stringify({
+				type: "login",
+				state: "success"
+			})));
 			break;
 
-			case "message":
-			case "RTCPeerOffer":
-				if (sockets[data.channel]) {
-					sockets[data.channel].forEach(s => s.send(buffer));
-				}
-				else return httpWarning(406, "No channel");
+		case "message":
+		case "RTCPeerOffer":
+		case "RTCPeerAnswer":
+		case "icecandidate":
+			if (sockets[data.channel]) {
+				sockets[data.channel].forEach(localSockets => {
+					if (localSockets !== socket) {
+						localSockets.send(buffer);
+					}
+				});
+			}
+			else return httpWarning(406, "No channel");
 			break;
 
-			default:
-				return httpWarning(501, `${data.type} not found`);
+		default:
+			return httpWarning(501, `${data.type} not found`);
 			// break;
 		}
-		/* eslint-enable indent */
 	});
 
 	socket.on("close", function() {
 		console.log("WebSocket disconnected");
 		for (const channel in sockets) {
 			if (Object.hasOwnProperty.call(sockets, channel)) {
-				sockets[channel] = sockets[channel].filter(s => s !== socket);
+				sockets[channel] = sockets[channel].filter(
+					localSockets => localSockets !== socket
+				);
 				if (sockets[channel].length <= 0) {
 					delete sockets[channel];
 					console.log(`Channel ${channel} has been deleted`);
