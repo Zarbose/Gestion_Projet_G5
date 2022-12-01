@@ -12,7 +12,7 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 	});
 });
 
-const socket = new WebSocket("ws://localhost:3000/");
+const socket = new WebSocket("wss://localhost:8443/");
 let channel = "";
 
 socket.onmessage = function (message) {

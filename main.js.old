@@ -1,0 +1,137 @@
+const fs = require("fs");
+const http = require("http");
+const https = require("https");
+const express = require("express");
+
+const WebSocket = require("ws");
+const HttpError = require("./Errors");
+
+const options = {
+	key: fs.readFileSync("./ssl/key.pem"),
+	cert: fs.readFileSync("./ssl/cert.pem")
+};
+const PORT = 8080;
+const SECUREPORT = 8443;
+
+const httpServer = http.createServer(function(req, res) {
+	const url = new URL(`http://${req.headers.host}${req.url}`);
+	res.writeHead(301, {"Location": `https://${url.hostname}:${SECUREPORT}${url.pathname}`});
+	res.end();
+});
+const app = express();
+const httpsServer = https.createServer(options, app);
+
+// Handle requests for static files
+app.use(express.static("www"));
+
+// Start the server
+httpsServer.listen(SECUREPORT, () => {
+	console.log(`HTTPS Server started on port ${SECUREPORT}`);
+});
+httpServer.listen(PORT, () => {
+	console.log(`HTTP Server started on port ${PORT} redirect to port ${SECUREPORT}`);
+});
+
+const wsServer = new WebSocket.Server({
+	server: httpsServer
+});
+
+let sockets = {};
+wsServer.on("connection", function(socket) {
+	/**
+	 * @description socket.send a Buffer from a String from a JSON
+	 * @param {Object} json 
+	 */
+	socket.sendJSON = function (json) {
+		socket.send(
+			Buffer.from(
+				JSON.stringify(
+					json
+				)
+			)
+		);
+	};
+
+	socket.on("message", function(buffer) {
+		try {
+			const data = JSON.parse(buffer.toString());
+			if (!data.type || !data.channel) {
+				throw new HttpError(406, "Incomplete");
+			}
+			// console.log("GOT", data);
+			console.info("Socket received", data.type);
+			switch (data.type) {
+			case "login":
+				if (sockets[data.channel]) {
+					sockets[data.channel].push(socket);
+				}
+				else {
+					sockets[data.channel] = [ socket ];
+				}
+				socket.sendJSON({
+					type: "login",
+					state: "success"
+				});
+				break;
+					
+			default:
+				if (sockets[data.channel]) {
+					sockets[data.channel].forEach(ourSockets => {
+						if (ourSockets !== socket) {
+							ourSockets.send(buffer);
+						}
+					});
+				}
+				else throw new HttpError(406, "No channel");
+				break;
+			}
+		} catch (error) {
+			if (error instanceof HttpError) {
+				console.error(error);
+				socket.sendJSON({
+					type: "error",
+					msg: `${error.stack.status} ${error.stack.statusText}`
+				});
+			}
+			else {
+				throw new error;
+			}
+		}
+	});
+	
+	socket.on("close", function() {
+		console.info("WebSocket disconnected");
+		for (const channel in sockets) {
+			if (Object.hasOwnProperty.call(sockets, channel)) {
+				sockets[channel] = sockets[channel].filter(
+					ourSockets => ourSockets !== socket
+				);
+				if (sockets[channel].length <= 0) {
+					delete sockets[channel];
+					console.info(`Channel ${channel} has been deleted`);
+				}
+			}
+		}
+	});
+	
+	socket.on("open", function() {
+		console.info("WebSocket open");
+	});
+});
+console.log(`WebSocket Server started on port ${SECUREPORT}`);
+
+app.get("/API", (req, res) => {
+	const url = new URL(req.headers.host + req.url);
+	if (url.searchParams.has("channels")) {
+		const channels = [];
+		for (const channel in sockets) {
+			if (Object.hasOwnProperty.call(sockets, channel)) {
+				channels.push(channel);
+			}
+		}
+		res.send(channels);
+	}
+	else {
+		res.status(404).send(`${req.url} not found`);
+	}
+});  
