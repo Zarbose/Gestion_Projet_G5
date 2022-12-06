@@ -51,14 +51,14 @@ export class WssClient {
 					break;
 				case "RTCPeerOffer":
 					// console.log(`Channel ${data.type}: RTCPeerOffer`, new RTCSessionDescription(data.offer));
-					globalThis.#iceClient.peerOffer(data);
+					globalThis.#iceClient.peerOffer(new RTCSessionDescription(data.offer));
 					break;
 				case "RTCPeerAnswer": {
-					globalThis.#iceClient.peerAnswer(data);
+					globalThis.#iceClient.peerAnswer(new RTCSessionDescription(data.answer));
 					break;
 				}
 				case "IceCandidate": {
-					globalThis.#iceClient.newCandidate(data);
+					globalThis.#iceClient.newCandidate(new RTCIceCandidate(data.candidate));
 					break;
 				}
 				case "login":
@@ -141,8 +141,11 @@ export class IceClient {
 
 	}
 
-	peerOffer(data) {
-		this.#rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(data.offer)).then(() => {
+	/**
+	 * @param {RTCSessionDescription} offer 
+	 */
+	peerOffer(offer) {
+		this.#rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(offer)).then(() => {
 			this.#rtcPeerConnection.createAnswer().then(answer => {
 				this.#rtcPeerConnection.setLocalDescription(answer).then(() => {
 					this.#wssClient.sendJSON({
@@ -153,27 +156,29 @@ export class IceClient {
 				});
 			});
 		}).catch(error =>
-			console.error(error, new RTCSessionDescription(data.offer))
+			console.error(error, new RTCSessionDescription(offer))
 		);
 	}
-
-	peerAnswer(data) {
-		this.#rtcPeerConnection.setRemoteDescription(
-			new RTCSessionDescription(data.answer)
-		).then(() => {
+	
+	/**
+	 * @param {RTCSessionDescription} answer 
+	 */
+	peerAnswer(answer) {
+		this.#rtcPeerConnection.setRemoteDescription(answer).then(() => {
 			console.info("RTCPeerConnection established");
 		}).catch(error =>
-			console.error(error, new RTCSessionDescription(data.answer))
+			console.error(error, answer)
 		);
 	}
 
-	newCandidate(data) {
-		this.#rtcPeerConnection.addIceCandidate(
-			new RTCIceCandidate(data.candidate)
-		).then(
+	/**
+	 * @param {RTCIceCandidate} candidate 
+	 */
+	newCandidate(candidate) {
+		this.#rtcPeerConnection.addIceCandidate(candidate).then(
 			console.log("IceCandidate added")
 		).catch(error =>
-			console.error(error, new RTCIceCandidate(data.candidate), this.#rtcPeerConnection.localDescription)
+			console.error(error, candidate, this.#rtcPeerConnection.localDescription)
 		);
 	}
 }
