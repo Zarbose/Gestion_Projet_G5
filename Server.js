@@ -61,7 +61,7 @@ class HttpsServer {
 	 */
 	api(sockets) {
 		this.#app.get("/API", (req, res) => {
-			const url = new URL(req.headers.host + req.url);
+			const url = new URL(`https://${req.headers.host}${req.url}`);
 			if (url.searchParams.has("channels")) {
 				const channels = [];
 				for (const channel in sockets) {
