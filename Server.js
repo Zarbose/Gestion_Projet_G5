@@ -9,7 +9,7 @@ class HttpServer {
 	 * @param {int} [securePort] HTTPS
 	 * @param {int} [unsecurePort] HTTP
 	 */
-	constructor(securePort = 4443, unsecurePort = 8080) {
+	constructor(securePort = 8443, unsecurePort = 8080) {
 		this.#securePort = securePort;
 		this.#unsecurePort = unsecurePort;
 		this.#server = http.createServer(function(req, res) {
