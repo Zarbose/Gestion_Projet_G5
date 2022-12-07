@@ -1,25 +1,27 @@
 const http = require("http");
 
 class HttpServer {
-	PORT = 8080;
 	#server = http.Server;
-	#securePort = this.PORT;
+	#unsecurePort = 0;
+	#securePort = 0;
 
 	/**
-	 * @param {int} securePort HTTPS
+	 * @param {int} [securePort] HTTPS
+	 * @param {int} [unsecurePort] HTTP
 	 */
-	constructor(securePort) {
+	constructor(securePort = 4443, unsecurePort = 8080) {
 		this.#securePort = securePort;
+		this.#unsecurePort = unsecurePort;
 		this.#server = http.createServer(function(req, res) {
 			const url = new URL(`http://${req.headers.host}${req.url}`);
-			res.writeHead(301, {"Location": `https://${url.hostname}:${securePort}${url.pathname}`});
+			res.writeHead(301, {"Location": `https://${url.hostname}:${this.#securePort}${url.pathname}`});
 			res.end();
 		});
 	}
 
 	start() {
-		this.#server.listen(this.PORT, () => {
-			console.log(`HTTP Server started on port ${this.PORT} redirect to port ${this.#securePort}`);
+		this.#server.listen(this.#unsecurePort, () => {
+			console.log(`HTTP Server started on port ${this.#unsecurePort} redirect to port ${this.#securePort}`);
 		});
 	}
 }
@@ -31,23 +33,26 @@ const { HttpError } = require("./Errors");
 
 class HttpsServer {
 	#app = express();
-	PORT = 8443;
+	#securePort = 0;
 	server = https.Server;
 	#SSL = {
 		key: fs.readFileSync("./ssl/key.pem"),
 		cert: fs.readFileSync("./ssl/cert.pem")
 	};
 
-
-	constructor() {
+	/**
+	 * @param {int} securePort HTTPS
+	 */
+	constructor(securePort = 8443) {
+		this.#securePort = securePort;
 		this.server = https.createServer(this.#SSL, this.#app);
 		// Handle requests for static files
 		this.#app.use(express.static("www"));
 	}
 
 	start() {
-		this.server.listen(this.PORT, () => {
-			console.log(`HTTPS Server started on port ${this.PORT}`);
+		this.server.listen(this.#securePort, () => {
+			console.log(`HTTPS Server started on port ${this.#securePort}`);
 		});
 	}
 
@@ -88,7 +93,7 @@ class WssServer {
 		});
 
 		this.#connection();
-		console.log(`WebSocket Server started on port ${httpsServer.PORT}`);
+		console.log(`WebSocket Server started on ${httpsServer.server._connectionKey}`);
 	}
 
 	#connection() {

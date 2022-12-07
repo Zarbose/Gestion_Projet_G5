@@ -1,7 +1,7 @@
 const { HttpsServer, HttpServer, WssServer } = require("./Server");
 
 const httpsServer = new HttpsServer();
-const httpServer = new HttpServer(httpsServer.PORT);
+const httpServer = new HttpServer();
 
 httpsServer.start();
 httpServer.start();
