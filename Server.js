@@ -1,7 +1,10 @@
 const http = require("http");
 
 class HttpServer {
-	#server = http.Server;
+	/**
+	 * @type {http.Server}
+	 */
+	#server;
 	#unsecurePort = 0;
 	#securePort = 0;
 
@@ -29,12 +32,15 @@ class HttpServer {
 const fs = require("fs");
 const https = require("https");
 const express = require("express");
-const { HttpError } = require("./Errors");
+const { HttpError, LoginError } = require("./Errors");
 
 class HttpsServer {
 	#app = express();
 	#securePort = 0;
-	server = https.Server;
+	/**
+	 * @type {https.Server}
+	 */
+	server;
 	#SSL = {
 		key: fs.readFileSync("./ssl/key.pem"),
 		cert: fs.readFileSync("./ssl/cert.pem")
@@ -78,10 +84,16 @@ class HttpsServer {
 	}
 }
 
-const { WebSocket, WebSocketServer } = require("ws");
+const { WebSocket } = require("ws");
 
 class WssServer {
-	#server = WebSocketServer;
+	/**
+	 * @type {WebSocketServer}
+	 */
+	#server;
+	/**
+	 * @type {Object.<Object[string, WebSocket]>} 
+	 */
 	sockets = {};
 
 	/**
@@ -118,7 +130,7 @@ class WssServer {
 			socket.on("close", () => (glonalThis.#onClose(socket)));			
 			
 			socket.on("open", function() {
-				// TODO: check if this called ever
+				// TODO: check if this ever called
 				console.info("WebSocket open");
 			});
 		});
@@ -131,30 +143,46 @@ class WssServer {
 	#onMessage(socket, buffer) {
 		try {
 			const data = JSON.parse(buffer.toString());
-			if (!data.type || !data.channel) {
+			if ( (data.type !== "login") && (!data.type && !data.channel && !data.user) ) {
 				throw new HttpError(406, "Incomplete");
 			}
 			// console.log("GOT", data);
 			console.info("Socket received", data.type);
 			switch (data.type) {
 			case "login":
-				if (this.sockets[data.channel]) {
-					this.sockets[data.channel].push(socket);
+				if (data.type && data.channel && data.user) {
+					if (this.sockets[data.channel]) {
+						this.sockets[data.channel].forEach(socketUserCollection => {
+							if (socketUserCollection.user === data.user) {
+								throw new LoginError("user");
+							}
+						});
+						this.sockets[data.channel].push({
+							socket: socket,
+							user: data.user
+						});
+					}
+					else {
+						this.sockets[data.channel] = [{
+							socket: socket,
+							user: data.user
+						}];
+					}
+					socket.sendJSON({
+						type: "login",
+						state: "success"
+					});
 				}
 				else {
-					this.sockets[data.channel] = [ socket ];
+					throw new LoginError("incomplete");
 				}
-				socket.sendJSON({
-					type: "login",
-					state: "success"
-				});
 				break;
 					
 			default:
 				if (this.sockets[data.channel]) {
-					this.sockets[data.channel].forEach(ourSockets => {
-						if (ourSockets !== socket) {
-							ourSockets.send(buffer);
+					this.sockets[data.channel].forEach(socketUserCollection => {
+						if (socketUserCollection.socket !== socket) {
+							socketUserCollection.socket.send(buffer);
 						}
 					});
 				}
@@ -166,7 +194,16 @@ class WssServer {
 				console.error(error);
 				socket.sendJSON({
 					type: "error",
-					msg: `${error.stack.status} ${error.stack.statusText}`
+					code: error.stack.status,
+					msg: error.stack.statusText
+				});
+			}
+			else if (error instanceof LoginError) {
+				console.error(error);
+				socket.sendJSON({
+					type: "login",
+					state: error.message,
+					//FIXME: should be error.stack.state
 				});
 			}
 			else {
@@ -183,7 +220,7 @@ class WssServer {
 		for (const channel in this.sockets) {
 			if (Object.hasOwnProperty.call(this.sockets, channel)) {
 				this.sockets[channel] = this.sockets[channel].filter(
-					ourSockets => ourSockets !== socket
+					socketUserCollection => socketUserCollection.socket !== socket
 				);
 				if (this.sockets[channel].length <= 0) {
 					delete this.sockets[channel];

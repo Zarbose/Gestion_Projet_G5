@@ -1,7 +1,29 @@
-export class WssClient {
-	#socket = WebSocket;
-	#iceClient = IceClient;
-	channel = "";
+/**
+ * @abstract
+ */
+class Login {
+	_channel = "";
+	_user = "";
+
+	/**
+	 * @param {string} channel 
+	 * @param {string} user 
+	 */
+	setLogin(channel, user) {
+		this._channel = channel;
+		this._user = user;
+	}
+}
+
+export class WssClient extends Login {
+	/**
+	 * @type {WebSocket}
+	 */
+	#socket;
+	/**
+	 * @type {IceClient}
+	 */
+	#iceClient;
 
 	/**
 	 * @param {IceClient} iceClient 
@@ -9,6 +31,7 @@ export class WssClient {
 	 * @param {int} [port] server
 	 */
 	constructor(iceClient, ip = "localhost", port = 8443) {
+		super();
 		const url = new URL(`wss://${ip}:${port}/`);
 		this.#socket = new WebSocket(url);
 		this.#iceClient = iceClient;
@@ -16,18 +39,21 @@ export class WssClient {
 
 	/**
 	 * @description WebSocket.send a String from a JSON
+	 * @note Autocompletion with current channel and user
 	 * @param {Object} json 
 	 */
 	sendJSON(json) {
 		this.#socket.send(
-			JSON.stringify(
-				json
-			)	
+			JSON.stringify(Object.assign({
+				channel: this._channel,
+				user: this._user,
+			}, json))	
 		);
 	}
 
 	/**
 	 * @description WebSocket.send
+	 * @note No channel nor user
 	 * @param {string} json 
 	 */
 	send(string) {
@@ -35,9 +61,10 @@ export class WssClient {
 	}
 
 	/**
-	 * @param {function(data): void} login Frontend function to be called when connected
+	 * @param {function(string): void} login Frontend function to be called when connected
+	 * @param {function(string, string): void} chat Frontend function to be called when a chat arrives
 	 */
-	start(login) {
+	start(login, chat) {
 		const globalThis = this;
 		this.#socket.onmessage = function (message) {
 			message.data.text().then(string => {
@@ -47,7 +74,7 @@ export class WssClient {
 		
 				switch(data.type) {
 				case "message":
-					console.info(`Channel ${data.type}: ${data.message}`);
+					chat(data.user, data.message);
 					break;
 				case "RTCPeerOffer":
 					// console.log(`Channel ${data.type}: RTCPeerOffer`, new RTCSessionDescription(data.offer));
@@ -62,7 +89,7 @@ export class WssClient {
 					break;
 				}
 				case "login":
-					login(data);
+					login(data.state);
 					break;
 				case "error":
 					console.error(data.msg);
@@ -73,8 +100,8 @@ export class WssClient {
 				}
 			});
 		};
-		this.#socket.onerror = function (err) { 
-			console.log("Got error", err); 
+		this.#socket.onerror = function (err) {
+			console.warn("Got error", err); 
 		};
 		this.#socket.onopen = function () { 
 			console.log("Connected");
@@ -83,17 +110,12 @@ export class WssClient {
 
 }
 
-export class IceClient {
+export class IceClient extends Login {
 	#rtcPeerConnection = new RTCPeerConnection();
-	#wssClient = WssClient;
-	channel = "";
-
 	/**
-	 * @param {string} channel 
+	 * @type {WssClient}
 	 */
-	constructor(channel) {
-		this.channel = channel;
-	}
+	#wssClient;
 
 	/**
 	 * @param {WssClient} wssClient 
@@ -106,7 +128,7 @@ export class IceClient {
 			if (event.candidate) {
 				this.#wssClient.sendJSON({
 					type: "IceCandidate",
-					channel: this.channel,
+					// channel: this.channel,
 					candidate: event.candidate.toJSON()
 				});
 			}
@@ -134,7 +156,7 @@ export class IceClient {
 		).then(() => {
 			this.#wssClient.sendJSON({
 				type: "RTCPeerOffer",
-				channel: this.channel,
+				// channel: this.channel,
 				offer: this.#rtcPeerConnection.localDescription.toJSON()
 			});
 		});
@@ -150,7 +172,7 @@ export class IceClient {
 				this.#rtcPeerConnection.setLocalDescription(answer).then(() => {
 					this.#wssClient.sendJSON({
 						type: "RTCPeerAnswer",
-						channel: this.channel,
+						// channel: this.channel,
 						answer: this.#rtcPeerConnection.localDescription.toJSON()
 					});
 				});

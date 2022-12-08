@@ -5,15 +5,19 @@
 	</head>
 	<body>
 		<form id="choose" action="javascript:void(0);">
-			<input id="newChannel" type="text" placeholder="New channel">
+			<input id="newChannel" type="text" placeholder="Nom du channel à créer">
 			<select id="existingChannels">
+			<input id="newUser" required type="text" placeholder="Nom d'utilisateur·rice">
 			</select>
 			<input type="submit" value="Rentrer dans le channel">
 		</form>
 		<form id="send" action="javascript:void(0);">
-			<input id="message" type="text" placeholder="Message">
+			<input id="messageToSend" type="text" placeholder="Message">
 			<input type="submit" value="Envoyer le message dans le channel">
 		</form>
+		<div id="chat">
+			
+		</div>
 		<form id="sendVideo" action="javascript:void(0);">
 			<video id="webcam" width="400" height="200"></video>
 			<input type="submit" value="Partager sa webcam">

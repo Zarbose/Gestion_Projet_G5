@@ -1,20 +1,42 @@
 import { IceClient, WssClient } from "./Client.js";
 
 let channel = "";
-let login = (data) => {
-	if (data.state === "success") {
+let user = "";
+const login = (state) => {
+	/**
+	 * @param {string} id 
+	 * @param {string} msg 
+	 */
+	function formWarning(id, msg) {
+		const input = document.getElementById(id);
+		input.setCustomValidity(msg);
+		input.reportValidity();
+		input.addEventListener("input", () => {
+			input.setCustomValidity("");
+			input.reportValidity();
+		});
+
+	}
+	if (state === "success") {
 		let form  = document.getElementById("choose");
 		for (const element of form.elements) {
 			element.disabled = true;
 		}
 	}
+	else if (state === "user") {
+		formWarning("newUser", "Nom d'utilisateur·rice déjà existant dans ce channel !");
+	}
+	else if (state === "incomplete") {
+		formWarning("newChannel", "Le channel ne peut être vide !");
+	}
 	else {
-		const input = document.querySelector("form#choose input");
-		input.setCustomValidity("Erreur lors de l'enregitrement de channel !");
-		input.reportValidity();
+		formWarning("newChannel", "Erreur lors de l'enregitrement !");
 	}
 };
-let videoTrack = (streams) => {
+const chat = (newUser, message) => {
+	document.getElementById("chat").insertAdjacentHTML("beforeend", `<span>${newUser}: ${message}`);
+};
+const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
 	const videoChannel = document.getElementById("videoChannel");
 	const video = document.createElement("video");
@@ -28,10 +50,10 @@ let videoTrack = (streams) => {
 	console.info("New stream added in DOM");
 };
 
-const iceClient = new IceClient(channel);
+const iceClient = new IceClient();
 const wssClient = new WssClient(iceClient);
 iceClient.start(wssClient, videoTrack);
-wssClient.start(login);
+wssClient.start(login, chat);
 
 navigator.mediaDevices.getUserMedia({
 	video: {
@@ -63,10 +85,10 @@ document.getElementById("sendVideo").addEventListener("submit", () => {
 });
 
 document.getElementById("send").addEventListener("submit", () => {
-	const message = document.getElementById("message").value;
+	const message = document.getElementById("messageToSend").value;
+	document.getElementById("chat").insertAdjacentHTML("beforeend", `<span>${user}: ${message}`);
 	wssClient.sendJSON({
 		type: "message",
-		channel: channel,
 		message: message
 	});
 });
@@ -74,13 +96,13 @@ document.getElementById("send").addEventListener("submit", () => {
 document.getElementById("choose").addEventListener("submit", () => {
 	const existingChannels = document.getElementById("existingChannels").value;
 	const newChannel = document.getElementById("newChannel").value;
+	user = document.getElementById("newUser").value;
 	channel = !existingChannels ? newChannel : existingChannels;
+	wssClient.setLogin(channel, user);
+	iceClient.setLogin(channel, user);
 	wssClient.sendJSON({
-		type: "login",
-		channel: channel
+		type: "login"
 	});
-	iceClient.channel = channel;
-	wssClient.channel = channel;
 });
 
 fetch(`${window.location.origin}/API?channels`).then(response => {
@@ -93,6 +115,7 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 		}
 		else {
 			input.disabled = true;
+			document.getElementById("newChannel").required = true;
 		}
 	});
 });
