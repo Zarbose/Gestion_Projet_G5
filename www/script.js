@@ -1,7 +1,7 @@
 import { IceClient, WssClient } from "./Client.js";
 
-let channel = "";
-let user = "";
+let channel = "undefined";
+let user = "local";
 const login = (state) => {
 	/**
 	 * @param {string} id 
@@ -34,7 +34,7 @@ const login = (state) => {
 	}
 };
 const chat = (newUser, message) => {
-	document.getElementById("chat").insertAdjacentHTML("beforeend", `<span>${newUser}: ${message}`);
+	document.getElementById("chatText").insertAdjacentHTML("beforeend", `<span>${newUser}: ${message}`);
 };
 const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
@@ -84,9 +84,9 @@ document.getElementById("sendVideo").addEventListener("submit", () => {
 	iceClient.sendVideo(video.srcObject);
 });
 
-document.getElementById("send").addEventListener("submit", () => {
+document.getElementById("sendMessage").addEventListener("submit", () => {
 	const message = document.getElementById("messageToSend").value;
-	document.getElementById("chat").insertAdjacentHTML("beforeend", `<span>${user}: ${message}`);
+	document.getElementById("chatText").insertAdjacentHTML("beforeend", `<span>${user}: ${message}`);
 	wssClient.sendJSON({
 		type: "message",
 		message: message
@@ -97,7 +97,12 @@ document.getElementById("choose").addEventListener("submit", () => {
 	const existingChannels = document.getElementById("existingChannels").value;
 	const newChannel = document.getElementById("newChannel").value;
 	user = document.getElementById("newUser").value;
-	channel = !existingChannels ? newChannel : existingChannels;
+	if (!existingChannels.disabled) {
+		channel = newChannel ? newChannel : existingChannels;
+	}
+	else {
+		channel = newChannel;
+	}
 	wssClient.setLogin(channel, user);
 	iceClient.setLogin(channel, user);
 	wssClient.sendJSON({

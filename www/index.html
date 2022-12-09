@@ -1,28 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
-		<title>Prototype</title>
+		<title>Gestion de projet - Groupe 5</title>
+		<link rel="stylesheet" type="text/css" href="./style.css" />
 	</head>
 	<body>
-		<form id="choose" action="javascript:void(0);">
-			<input id="newChannel" type="text" placeholder="Nom du channel à créer">
-			<select id="existingChannels">
-			<input id="newUser" required type="text" placeholder="Nom d'utilisateur·rice">
-			</select>
-			<input type="submit" value="Rentrer dans le channel">
-		</form>
-		<form id="send" action="javascript:void(0);">
-			<input id="messageToSend" type="text" placeholder="Message">
-			<input type="submit" value="Envoyer le message dans le channel">
-		</form>
-		<div id="chat">
-			
-		</div>
-		<form id="sendVideo" action="javascript:void(0);">
-			<video id="webcam" width="400" height="200"></video>
-			<input type="submit" value="Partager sa webcam">
-		</form>
-		<div id="videoChannel"></div>
+		<main>
+			<section id="video">
+				<video id="webcam" width="400" height="200"></video>
+				<div id="videoChannel"></div>
+			</section>
+			<section id="buttons">
+				<form id="choose" action="javascript:void(0);">
+					<input id="newChannel" type="text" placeholder="Nom du channel à créer">
+					<select id="existingChannels"></select>
+					<input id="newUser" required type="text" placeholder="Nom d'utilisateur·rice">
+					<input type="submit" value="Rentrer dans le channel">
+				</form>
+				<form id="sendVideo" action="javascript:void(0);">
+					<input type="submit" value="Partager sa webcam">
+				</form>
+			</section>
+			<section id="chatRoom">
+				<div id="chatText"></div>
+				<form id="sendMessage" action="javascript:void(0);">
+					<input id="messageToSend" type="text" placeholder="Message">
+					<input type="submit" value="Envoyer le message dans le channel">
+				</form>
+			</section>
+		</main>
 	</body>
 	<script type="module" src="./script.js"></script>
 </html>

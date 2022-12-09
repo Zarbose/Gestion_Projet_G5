@@ -1,0 +1,70 @@
+main input {
+    white-space: normal;
+	margin: auto;
+}
+
+main {
+    display: grid;
+    grid-template-areas:
+      "video	video	chatRoom"
+      "buttons	buttons	chatRoom"
+    ;
+	height: calc(100vh - 16px);
+}
+main section#video, main section#buttons, main section#chatRoom {
+	border: 0.75em solid grey;
+}
+main section#video, main section#buttons {
+	padding: 0.25em;
+}
+
+
+main section#video {
+    grid-area: video;
+
+	display: flex;
+	flex-flow: wrap row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+main section#buttons {
+    grid-area: buttons;
+}
+main section#buttons, main section#buttons form {
+    display: flex;
+    flex-flow: nowrap row;
+    align-items: center;
+    justify-content: space-around;
+}
+main section#buttons form:first-child {
+	flex: 1;
+}
+
+main section#chatRoom {
+    grid-area: chatRoom;
+
+    display: grid;
+	grid-template-rows: 75% 25%;
+	align-items: center;
+}
+
+main section#chatRoom div#chatText {
+	overflow-y: scroll;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-flow: nowrap column;
+	justify-content: space-around;
+	justify-items: center;
+}
+
+main section#chatRoom form#sendMessage {
+	background-color: lightgray;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-flow: wrap row;
+	justify-content: space-around;
+	justify-items: center;
+}
