@@ -13,7 +13,7 @@
 
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #00345F;">
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #00345F; z-index: 9999;">
             <div class="navbar-brand me-3">
                 <img src="../images/logos.png" width="45" height="55" class="d-inline-block align-top" alt="logo">
             </div>
@@ -58,40 +58,42 @@
                 <a class="navbar-brand" href="#">Espace démonstration</a>
             </span>
         </nav>
-        <div class="container-fluid text-center position-relative" style="margin-top: 35px;">
-            <div class="row">
-                <!-- La zone d'affichage de la webcam -->
-                <div class="col ms-3">
-                    <div class="row bg-danger">
-                        <div id="videoChannel">1</div>
-                    </div>
-                    <div class="row bg-dark">
-                        <!-- La zone de choix pour le channel et la vidéo -->
-                        <form id="choose" action="javascript:void(0);">
-                            <input id="newChannel" type="text" placeholder="New channel">
-                            <select id="existingChannels"></select>
-                            <input type="submit" value="Rentrer dans le channel">
-                        </form>
+        <div class="" style="height: 100%; padding-top: 85px; padding-bottom: 10px; position: absolute; top: 0px; left: 0px; width: 100%;">
+            <div class="container-fluid text-center position-relative h-100">
+                <div class="row h-100">
+                    <!-- La zone d'affichage de la webcam -->
+                    <div class="col ms-3 bg-dark">
+                        <div class="row bg-danger">
+                            <div id="videoChannel">1</div>
+                        </div>
+                        <div class="row ">
+                            <!-- La zone de choix pour le channel et la vidéo -->
+                            <form id="choose" action="javascript:void(0);">
+                                <input id="newChannel" type="text" placeholder="New channel">
+                                <select id="existingChannels"></select>
+                                <input type="submit" value="Rentrer dans le channel">
+                            </form>
 
-                        <form id="sendVideo" action="javascript:void(0);">
-                            <video id="webcam" width="400" height="200"></video>
-                            <input type="submit" value="Partager sa webcam">
-                        </form>
+                            <form id="sendVideo" action="javascript:void(0);">
+                                <video id="webcam" width="400" height="200"></video>
+                                <input type="submit" value="Partager sa webcam">
+                            </form>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-3 bg-info ms-2 me-1">
-                    <!-- La zone des messages -->
-                    <div class="row">
-                        Les messages
-                    </div>
-                    <!-- <div class="row position-absolute bottom-0 mb-1"> -->
-                    <div class="row bottom-0 mb-1">
-                        
-                        <form id="send" action="javascript:void(0);">
-                            <input id="message" type="text" placeholder="Message">
-                            <input type="submit" value="Envoyer">
-                        </form>
+                    <div class="col-3 bg-info ms-2 me-1">
+                        <!-- La zone des messages -->
+                        <div class="row">
+                            Les messages
+                        </div>
+                        <!-- <div class="row position-absolute bottom-0 mb-1"> -->
+                        <div class="row mb-1 me-1">
+                            
+                            <form id="send" action="javascript:void(0);">
+                                <input id="message" type="text" placeholder="Message">
+                                <input type="submit" value="Envoyer">
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
