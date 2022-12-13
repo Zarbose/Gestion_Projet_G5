@@ -34,7 +34,7 @@ const login = (state) => {
 	}
 };
 const chat = (newUser, message) => {
-	document.getElementById("chatText").insertAdjacentHTML("beforeend", `<span>${newUser}: ${message}`);
+	document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<span>${newUser}: ${message}</span>`);
 };
 const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
@@ -53,6 +53,8 @@ const videoTrack = (streams) => {
 const iceClient = new IceClient();
 const wssClient = new WssClient(iceClient);
 iceClient.start(wssClient, videoTrack);
+// iceClient.wssClient = wssClient;
+// iceClient.start(videoTrack);
 wssClient.start(login, chat);
 
 navigator.mediaDevices.getUserMedia({
@@ -86,7 +88,7 @@ document.getElementById("sendVideo").addEventListener("submit", () => {
 
 document.getElementById("sendMessage").addEventListener("submit", () => {
 	const message = document.getElementById("messageToSend").value;
-	document.getElementById("chatText").insertAdjacentHTML("beforeend", `<span>${user}: ${message}`);
+	chat(user, message);
 	wssClient.sendJSON({
 		type: "message",
 		message: message

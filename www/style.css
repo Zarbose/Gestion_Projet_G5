@@ -17,7 +17,14 @@ main section#video, main section#buttons, main section#chatRoom {
 main section#video, main section#buttons {
 	padding: 0.25em;
 }
-
+main section#video video {
+	max-width: calc(800em / 60);
+	max-height: calc(600em / 60);
+	background-image: url("./noWebcam.svg");
+	background-position: center;
+	background-size: 60%;
+	background-repeat: no-repeat;
+}
 
 main section#video {
     grid-area: video;
@@ -47,6 +54,7 @@ main section#chatRoom {
     display: grid;
 	grid-template-rows: 75% 25%;
 	align-items: center;
+	height: calc(100vh - 16px - 1em);
 }
 
 main section#chatRoom div#chatText {
@@ -55,7 +63,7 @@ main section#chatRoom div#chatText {
 	width: 100%;
 	display: flex;
 	flex-flow: nowrap column;
-	justify-content: space-around;
+	justify-content: flex-start;
 	justify-items: center;
 }
 
