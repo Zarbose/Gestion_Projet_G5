@@ -52,9 +52,9 @@ const videoTrack = (streams) => {
 
 const iceClient = new IceClient();
 const wssClient = new WssClient(iceClient);
-iceClient.start(wssClient, videoTrack);
-// iceClient.wssClient = wssClient;
-// iceClient.start(videoTrack);
+// iceClient.start(wssClient, videoTrack);
+iceClient.wssClient = wssClient;
+iceClient.start(videoTrack);
 wssClient.start(login, chat);
 
 navigator.mediaDevices.getUserMedia({

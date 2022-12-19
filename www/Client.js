@@ -78,14 +78,14 @@ export class WssClient extends Login {
 					break;
 				case "RTCPeerOffer":
 					// console.log(`Channel ${data.type}: RTCPeerOffer`, new RTCSessionDescription(data.offer));
-					globalThis.#iceClient.peerOffer(new RTCSessionDescription(data.offer));
+					globalThis.#iceClient.peerOffer(new RTCSessionDescription(data.offer), data.user);
 					break;
 				case "RTCPeerAnswer": {
-					globalThis.#iceClient.peerAnswer(new RTCSessionDescription(data.answer));
+					globalThis.#iceClient.peerAnswer(new RTCSessionDescription(data.answer), data.user);
 					break;
 				}
 				case "IceCandidate": {
-					globalThis.#iceClient.newCandidate(new RTCIceCandidate(data.candidate));
+					globalThis.#iceClient.newCandidate(new RTCIceCandidate(data.candidate), data.user);
 					break;
 				}
 				case "login":
@@ -111,7 +111,10 @@ export class WssClient extends Login {
 }
 
 export class IceClient extends Login {
-	#rtcPeerConnection = new RTCPeerConnection();
+	/**
+	 * @type {Object[RTCPeerConnection]}
+	 */
+	#rtcPeerConnections = {};
 	/**
 	 * @type {WssClient}
 	 */
@@ -119,11 +122,93 @@ export class IceClient extends Login {
 
 	/**
 	 * @param {WssClient} wssClient 
+	 */
+	set wssClient(wssClient) {
+		this.#wssClient = wssClient;
+	}
+
+	constructor() {
+		super();
+	}
+
+	/**
 	 * @param {function(MediaStreamTrack[]): void} videoTrack Frontend function to be called when new video stream arrives
 	 */
-	start(wssClient, videoTrack) {
-		this.#wssClient = wssClient;
-		this.#rtcPeerConnection.addEventListener("icecandidate", (event) => {
+	start(videoTrack) {
+		this.videoTrack = videoTrack;
+		
+	}
+
+	/**
+	 * @param {MediaStream} srcObject 
+	 */
+	sendVideo(srcObject) {
+		// FIXME: this._user is initiliased only when setLogin is called
+		this.#rtcPeerConnections[this._user] = new RTCPeerConnection();
+		console.log(srcObject.getTracks());
+		this.#rtcPeerConnections[this._user].addTrack(srcObject.getVideoTracks()[0], srcObject);
+		this.#rtcPeerConnections[this._user].addTrack(srcObject.getAudioTracks()[0], srcObject);
+
+		this.#rtcPeerConnections[this._user].createOffer().then(offer => 
+			this.#rtcPeerConnections[this._user].setLocalDescription(offer)
+		).then(() => {
+			this.#wssClient.sendJSON({
+				type: "RTCPeerOffer",
+				offer: this.#rtcPeerConnections[this._user].localDescription.toJSON()
+			});
+		});
+
+	}
+
+	/**
+	 * @param {RTCSessionDescription} offer 
+	 * @param {string} newUser 
+	 */
+	peerOffer(offer, newUser) {
+		if (!Object.hasOwnProperty.call(this.#rtcPeerConnections, newUser)) {
+			// FIXME: when already connected to newUsers the this._user is already initiliased
+			if (!this.#rtcPeerConnections[this._user]) this.#rtcPeerConnections[this._user] = new RTCPeerConnection();
+			this.#rtcPeerConnections[newUser] = this.#rtcPeerConnections[this._user];
+			this.#rtcPeerConnections[this._user] = new RTCPeerConnection();
+		}
+		this.#rtcPeerConnections[newUser].setRemoteDescription(offer).then(() => {
+			this.#rtcPeerConnections[newUser].createAnswer().then(answer => {
+				this.#rtcPeerConnections[newUser].setLocalDescription(answer).then(() => {
+					this.#wssClient.sendJSON({
+						type: "RTCPeerAnswer",
+						// channel: this.channel,
+						answer: this.#rtcPeerConnections[newUser].localDescription.toJSON()
+					});
+
+				});
+			});
+		}).catch(error =>
+			console.error(error, offer)
+		);
+		this.#rtcPeerConnections[newUser].ontrack = (event) => {
+			if (event.track.kind === "audio") {
+				console.log("Received audio MediaStreamTrack");
+			}
+			else {
+				this.videoTrack(event.streams);
+			}
+		};
+	}
+	
+	/**
+	 * @param {RTCSessionDescription} answer 
+	 * @param {string} newUser 
+	 */
+	peerAnswer(answer, newUser) {
+		this.#rtcPeerConnections[newUser] = this.#rtcPeerConnections[this._user];
+		this.#rtcPeerConnections[this._user] = new RTCPeerConnection();
+
+		this.#rtcPeerConnections[newUser].setRemoteDescription(answer).then(
+			console.info("RTCPeerConnection established")
+		).catch(error =>
+			console.error(error, answer)
+		);
+		this.#rtcPeerConnections[newUser].addEventListener("icecandidate", (event) => {
 			console.info("New IceCandidate", event.candidate);
 			if (event.candidate) {
 				this.#wssClient.sendJSON({
@@ -132,75 +217,27 @@ export class IceClient extends Login {
 					candidate: event.candidate.toJSON()
 				});
 			}
-		});
-		this.#rtcPeerConnection.ontrack = (event) => {
-			if (event.track.kind === "audio") {
-				console.log("Received audio MediaStreamTrack");
+			else if (false && this.#rtcPeerConnections[this._user].iceConnectionState === "connected") {
+				this.#rtcPeerConnections.push(new RTCPeerConnection());
+				// this._user = this.#rtcPeerConnections.length - 1;
+				this.start(videoTrack);
+				console.info("RTCPeerConnection is done, moving on !");
 			}
 			else {
-				videoTrack(event.streams);
+				// throw new TypeError("No candidate and not connected", event);
 			}
-		};
-	}
-
-	/**
-	 * @param {MediaStream} srcObject 
-	 */
-	sendVideo(srcObject) {
-		this.#rtcPeerConnection.addTrack(srcObject.getVideoTracks()[0], srcObject);
-		console.log(srcObject.getTracks());
-		this.#rtcPeerConnection.addTrack(srcObject.getAudioTracks()[0], srcObject);
-
-		this.#rtcPeerConnection.createOffer().then(offer => 
-			this.#rtcPeerConnection.setLocalDescription(offer)
-		).then(() => {
-			this.#wssClient.sendJSON({
-				type: "RTCPeerOffer",
-				// channel: this.channel,
-				offer: this.#rtcPeerConnection.localDescription.toJSON()
-			});
 		});
-
-	}
-
-	/**
-	 * @param {RTCSessionDescription} offer 
-	 */
-	peerOffer(offer) {
-		this.#rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(offer)).then(() => {
-			this.#rtcPeerConnection.createAnswer().then(answer => {
-				this.#rtcPeerConnection.setLocalDescription(answer).then(() => {
-					this.#wssClient.sendJSON({
-						type: "RTCPeerAnswer",
-						// channel: this.channel,
-						answer: this.#rtcPeerConnection.localDescription.toJSON()
-					});
-				});
-			});
-		}).catch(error =>
-			console.error(error, new RTCSessionDescription(offer))
-		);
-	}
-	
-	/**
-	 * @param {RTCSessionDescription} answer 
-	 */
-	peerAnswer(answer) {
-		this.#rtcPeerConnection.setRemoteDescription(answer).then(() => {
-			console.info("RTCPeerConnection established");
-		}).catch(error =>
-			console.error(error, answer)
-		);
 	}
 
 	/**
 	 * @param {RTCIceCandidate} candidate 
+	 * @param {string} newUser 
 	 */
-	newCandidate(candidate) {
-		this.#rtcPeerConnection.addIceCandidate(candidate).then(
+	newCandidate(candidate, newUser) {
+		this.#rtcPeerConnections[newUser].addIceCandidate(candidate).then(
 			console.log("IceCandidate added")
 		).catch(error =>
-			console.error(error, candidate, this.#rtcPeerConnection.localDescription)
+			console.error(error, candidate, this.#rtcPeerConnections[newUser].localDescription)
 		);
 	}
 }
