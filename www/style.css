@@ -6,10 +6,12 @@ main input {
 main {
     display: grid;
     grid-template-areas:
+	  "nav       nav         nav"
+      "video	video	chatRoom"
       "video	video	chatRoom"
       "buttons	buttons	chatRoom"
     ;
-	height: calc(100vh - 16px);
+	height: calc(100vh - 17px);
 }
 main section#video, main section#buttons, main section#chatRoom {
 	border: 0.75em solid grey;
@@ -35,9 +37,21 @@ main section#video {
     justify-content: space-around;
 }
 
+main section#nav {
+	grid-area: nav;
+}
+
+main section#nav nav{
+	grid-area: nav;
+	background-color: #00345F; 
+	z-index: 9999;
+	/* max-height: calc(600em / 60); */
+}
+
 main section#buttons {
     grid-area: buttons;
 }
+
 main section#buttons, main section#buttons form {
     display: flex;
     flex-flow: nowrap row;
@@ -54,7 +68,7 @@ main section#chatRoom {
     display: grid;
 	grid-template-rows: 75% 25%;
 	align-items: center;
-	height: calc(100vh - 16px - 1em);
+	height: calc(100vh - 17px - 4em);
 }
 
 main section#chatRoom div#chatText {
