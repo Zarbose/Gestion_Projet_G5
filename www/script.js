@@ -22,7 +22,6 @@ const login = (state) => {
 		for (const element of form.elements) {
 			element.disabled = true;
 		}
-		chat(user,"entering");
 	}
 	else if (state === "user") {
 		formWarning("newUser", "Nom d'utilisateur·rice déjà existant dans ce channel !");
@@ -35,8 +34,10 @@ const login = (state) => {
 	}
 };
 const chat = (newUser, message) => {
-
 	if (message == "entering"){
+		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: green"><small>&#10132; ${newUser} est entrée</small></div>`);
+	}
+	else if(message == "leaving"){
 		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>`);
 	}
 	else{
@@ -47,20 +48,6 @@ const chat = (newUser, message) => {
 			document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
 		}
 	}
-
-	// if (newUser == user){
-	// 	if (message == "entering"){
-	// 		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>`);
-	// 		// <div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>
-	// 	}
-	// 	else{
-	// 		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message messageSend">${message}</div>`);
-	// 	}
-		
-	// }
-	// else{
-	// 	document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
-	// }
 };
 const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
@@ -136,6 +123,12 @@ document.getElementById("choose").addEventListener("submit", () => {
 	wssClient.sendJSON({
 		type: "login"
 	});
+	const message = "entering"
+	chat(user, message);
+	wssClient.sendJSON({
+		type: "message",
+		message: message
+	});
 });
 
 fetch(`${window.location.origin}/API?channels`).then(response => {
@@ -152,3 +145,12 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 		}
 	});
 });
+
+window.addEventListener('beforeunload', () => {
+	const message = "leaving"
+	chat(user, message);
+	wssClient.sendJSON({
+		type: "message",
+		message: message
+	});
+}); 
