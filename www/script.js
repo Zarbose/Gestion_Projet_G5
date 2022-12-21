@@ -50,11 +50,10 @@ const videoTrack = (streams) => {
 	console.info("New stream added in DOM");
 };
 
+
 const iceClient = new IceClient();
 const wssClient = new WssClient(iceClient);
-// iceClient.start(wssClient, videoTrack);
 iceClient.wssClient = wssClient;
-iceClient.start(videoTrack);
 wssClient.start(login, chat);
 
 navigator.mediaDevices.getUserMedia({
@@ -73,6 +72,9 @@ navigator.mediaDevices.getUserMedia({
 	video.controls = false;
 	video.autoplay = true;
 	video.srcObject = mediaStream;
+
+
+	iceClient.start(videoTrack, video.srcObject);
 }).catch(error => {
 	if (error.name === "NotAllowedError") {
 		console.warn("Webcam", error.message);
@@ -82,8 +84,7 @@ navigator.mediaDevices.getUserMedia({
 });
 
 document.getElementById("sendVideo").addEventListener("submit", () => {
-	const video = document.getElementById("webcam");
-	iceClient.sendVideo(video.srcObject);
+	iceClient.sendVideo();
 });
 
 document.getElementById("sendMessage").addEventListener("submit", () => {
