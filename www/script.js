@@ -22,6 +22,7 @@ const login = (state) => {
 		for (const element of form.elements) {
 			element.disabled = true;
 		}
+		chat(user,"entering");
 	}
 	else if (state === "user") {
 		formWarning("newUser", "Nom d'utilisateur·rice déjà existant dans ce channel !");
@@ -34,12 +35,32 @@ const login = (state) => {
 	}
 };
 const chat = (newUser, message) => {
-	if (newUser == user){
-		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message messageSend"><small>~ ${newUser}<br/></small>${message}</div>`);
+
+	if (message == "entering"){
+		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>`);
 	}
 	else{
-		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
+		if (newUser == user){
+			document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message messageSend">${message}</div>`);
+		}
+		else{
+			document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
+		}
 	}
+
+	// if (newUser == user){
+	// 	if (message == "entering"){
+	// 		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>`);
+	// 		// <div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>
+	// 	}
+	// 	else{
+	// 		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message messageSend">${message}</div>`);
+	// 	}
+		
+	// }
+	// else{
+	// 	document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
+	// }
 };
 const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
