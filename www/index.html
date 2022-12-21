@@ -66,9 +66,11 @@
 			</section>
 			<section id="buttons">
 				<form id="choose" action="javascript:void(0);">
-					<input id="newChannel" type="text" autocomplete="off" placeholder="Nom du channel à créer" class="TextZone">
-					<select id="existingChannels"></select>
 					<input id="newUser" required type="text" autocomplete="off" placeholder="Nom d'utilisateur·rice" class="TextZone">
+					<input id="newChannel" type="text" autocomplete="off" placeholder="Nom du channel à créer" class="TextZone">
+					<select id="existingChannels" class="SelectZone">
+						<!-- <option value="">--None--</option>> -->
+					</select>
 					<input type="submit" value="Rentrer dans le channel" class="btn btn-primary">
 				</form>
 				<form id="sendVideo" action="javascript:void(0);">
@@ -76,7 +78,16 @@
 				</form>
 			</section>
 			<section id="chatRoom">
-				<div id="chatText"></div>
+				<div id="chatText">
+					<div class="message">
+						Hi
+					</div>
+					<div class="message messageSend">
+						HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello
+					</div>
+					
+
+				</div>
 				<form id="sendMessage" action="javascript:void(0);" class="">
 					<input id="messageToSend" type="text" autocomplete="off" placeholder="Message" class="TextZone">
 					<input id="btnSend" type="submit" value="Envoyer" class="btn btn-primary">
