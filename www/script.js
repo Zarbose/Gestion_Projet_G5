@@ -34,7 +34,7 @@ const login = (state) => {
 	}
 };
 const chat = (newUser, message) => {
-	document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message">${newUser}: ${message}</div>`);
+	document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
 };
 const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
