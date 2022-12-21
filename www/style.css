@@ -10,7 +10,7 @@ main {
       "video	video	chatRoom"
       "buttons	buttons	chatRoom"
     ;
-	grid-template-rows: 1fr 1fr 15%;
+	grid-template-rows: max-content max-content 15%;
 	grid-template-columns: 1fr 1fr 1fr;
 	height: calc(100vh - 17px);
 }
