@@ -34,7 +34,12 @@ const login = (state) => {
 	}
 };
 const chat = (newUser, message) => {
-	document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
+	if (newUser == user){
+		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message messageSend"><small>~ ${newUser}<br/></small>${message}</div>`);
+	}
+	else{
+		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
+	}
 };
 const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");

@@ -153,3 +153,8 @@ main section#chatRoom form #messageToSend {
     background: rgb(80, 80, 80);
     color: white;
 }
+
+.infoMessage {
+	padding: 3px;
+	margin-left: 1rem;
+}
