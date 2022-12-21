@@ -94,6 +94,7 @@ main section#chatRoom form#sendMessage {
 main section#chatRoom form #messageToSend {
 	min-width: 70%;
 }
-/* main section#chatRoom form #btnSend {
-	width: 20%;
-} */
+
+.TextZone {
+	border-radius: 4px;
+}
