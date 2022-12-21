@@ -23,7 +23,7 @@ main section#video, main section#buttons {
 main section#video video {
 	max-width: calc(800em / 60);
 	max-height: calc(600em / 60);
-	background-image: url("./noWebcam.svg");
+	background-image: url("./src/img/noWebcam.svg");
 	background-position: center;
 	background-size: 60%;
 	background-repeat: no-repeat;

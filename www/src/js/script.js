@@ -123,7 +123,7 @@ document.getElementById("choose").addEventListener("submit", () => {
 	wssClient.sendJSON({
 		type: "login"
 	});
-	const message = "entering"
+	const message = "entering";
 	chat(user, message);
 	wssClient.sendJSON({
 		type: "message",
@@ -146,8 +146,8 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 	});
 });
 
-window.addEventListener('beforeunload', () => {
-	const message = "leaving"
+window.addEventListener("beforeunload", () => {
+	const message = "leaving";
 	chat(user, message);
 	wssClient.sendJSON({
 		type: "message",
