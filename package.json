@@ -4,7 +4,8 @@
   "description": "Gestion de Projets - M1 INFO - Groupe 5",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "npx tsc; node main.js",
+    "dirty": "node main.js",
     "eslint": "npm init @eslint/config"
   },
   "repository": "git@github.com:Zarbose/Gestion_Projet_G5.git",
@@ -12,7 +13,8 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.0.1",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
     "ws": "^8.11.0"

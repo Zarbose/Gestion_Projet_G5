@@ -1,4 +1,4 @@
-import { IceClient, WssClient } from "./Client.js";
+import { WssClient, IceClient } from "./src/transpiler/Client.js";
 
 let channel = "undefined";
 let user = "local";

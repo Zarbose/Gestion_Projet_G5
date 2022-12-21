@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+		"target": "ES6",
+		"module": "ESNext",
+		"sourceMap": true,
+		"moduleResolution": "classic",
+		"outDir": "./www/src/transpiler"
+    }
+}
