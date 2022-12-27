@@ -4,6 +4,6 @@
 		"module": "ESNext",
 		"sourceMap": true,
 		"moduleResolution": "classic",
-		"outDir": "./www/src/transpiler"
+		"outDir": "./www/src/js/transpiler"
     }
 }

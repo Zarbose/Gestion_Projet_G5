@@ -1,4 +1,4 @@
-import { WssClient, IceClient } from "./src/transpiler/Client.js";
+import { WssClient, IceClient } from "./transpiler/Client.js";
 
 let channel = "undefined";
 let user = "local";
@@ -40,7 +40,7 @@ const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
 	const videoChannel = document.getElementById("videoChannel");
 	const video = document.createElement("video");
-	video.muted = false;
+	video.muted = true; //FIXME: debug only, true in production
 	video.controls = false;
 	video.autoplay = true;
 	video.srcObject = streams[0];

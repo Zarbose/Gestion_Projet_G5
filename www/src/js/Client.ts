@@ -171,7 +171,6 @@ export class IceClient extends Login {
 				this.rtcPeerConnections[newUser].connection.setLocalDescription(answer).then(() => {
 					this.wssClient.sendJSON({
 						type: "RTCPeerAnswer",
-						// channel: this.channel,
 						answer: this.rtcPeerConnections[newUser].connection.localDescription.toJSON()
 					});
 
@@ -191,16 +190,33 @@ export class IceClient extends Login {
 	}
 
 	peerAnswer(answer: RTCSessionDescription, newUser: string) {
+		console.log(this.rtcPeerConnections);
 		if (!Object.hasOwnProperty.call(this.rtcPeerConnections, newUser)) {
 			this.rtcPeerConnections[newUser] = this.rtcPeerConnections[Login._user];
-			this.rtcPeerConnections[Login._user] = null;
+			this.rtcPeerConnections[Login._user] = {
+				connection: new RTCPeerConnection(),
+				fullfilled: false
+			};
+			this.rtcPeerConnections[Login._user].connection.setLocalDescription(
+				this.rtcPeerConnections[newUser].connection.localDescription
+				// FIXME: not working -> the server needs to send the list of user in a channel and then dispatch all the offer that the client will generate on that list
+			).then(() => {
+				this.rtcPeerConnections[newUser].connection.setRemoteDescription(answer).then(
+					// console.info("RTCPeerConnection established", this.rtcPeerConnections)
+				).catch(error =>
+					console.error(error, newUser, answer)
+				);			
+			});
+		}
+		else {
+			this.rtcPeerConnections[newUser].connection.setRemoteDescription(answer).then(
+				// console.info("RTCPeerConnection established", this.rtcPeerConnections)
+			).catch(error =>
+				console.error(error, newUser, answer)
+			);
 		}
 
-		this.rtcPeerConnections[newUser].connection.setRemoteDescription(answer).then(
-			// console.info("RTCPeerConnection established", this.rtcPeerConnections)
-		).catch(error =>
-			console.error(error, answer)
-		);
+		console.log(this.rtcPeerConnections, newUser);
 		
 	}
 
