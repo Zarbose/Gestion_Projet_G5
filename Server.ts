@@ -179,20 +179,18 @@ export class WssServer {
 			}
 		} catch (error) {
 			if (error instanceof HttpError) {
-				const stack = JSON.parse(String(error.stack));
 				console.error(error);
 				sendJSON({
 					type: "error",
-					code: stack.status,
-					msg: stack.statusText
+					code: error.parameters.status,
+					msg: error.parameters.statusText
 				});
 			}
 			else if (error instanceof LoginError) {
 				console.error(error);
 				sendJSON({
 					type: "login",
-					state: error.message,
-					//TODO: should be error.stack.state
+					state: error.parameters.state,
 				});
 			}
 			else {

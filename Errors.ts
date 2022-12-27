@@ -1,4 +1,10 @@
+interface ParametersDict {
+	[index: string]: string|number|undefined,
+};
+
 export class HttpError extends Error {
+	public parameters: ParametersDict;
+
 	constructor(code: number, response: string, msg?: string) {
 		super(response);
 
@@ -7,16 +13,18 @@ export class HttpError extends Error {
 		
 		if (msg) this.message += `. ${msg}.`;
 
-		this.stack = JSON.stringify({
+		this.parameters = {
 			status: code,
 			statusText: response,
 			msg: msg
-		});
+		};
 
 		Error.captureStackTrace(this, HttpError);
 	}
 }
 export class LoginError extends Error {
+	public parameters: ParametersDict;
+
 	constructor(state: string, msg?: string) {
 		super(state);
 
@@ -25,10 +33,10 @@ export class LoginError extends Error {
 		
 		if (msg) this.message += `. ${msg}.`;
 
-		this.stack = JSON.stringify({
+		this.parameters = {
 			state: state,
 			msg: msg
-		});
+		};
 
 		Error.captureStackTrace(this, LoginError);
 	}
