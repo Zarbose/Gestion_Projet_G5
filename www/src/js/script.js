@@ -34,7 +34,20 @@ const login = (state) => {
 	}
 };
 const chat = (newUser, message) => {
-	document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<span>${newUser}: ${message}</span>`);
+	if (message == "entering"){
+		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: green"><small>&#10132; ${newUser} est entrée</small></div>`);
+	}
+	else if(message == "leaving"){
+		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>`);
+	}
+	else{
+		if (newUser == user){
+			document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message messageSend">${message}</div>`);
+		}
+		else{
+			document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
+		}
+	}
 };
 const videoTrack = (streams) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
@@ -110,6 +123,12 @@ document.getElementById("choose").addEventListener("submit", () => {
 	wssClient.sendJSON({
 		type: "login"
 	});
+	const message = "entering";
+	chat(user, message);
+	wssClient.sendJSON({
+		type: "message",
+		message: message
+	});
 });
 
 fetch(`${window.location.origin}/API?channels`).then(response => {
@@ -126,3 +145,12 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 		}
 	});
 });
+
+window.addEventListener("beforeunload", () => {
+	const message = "leaving";
+	chat(user, message);
+	wssClient.sendJSON({
+		type: "message",
+		message: message
+	});
+}); 

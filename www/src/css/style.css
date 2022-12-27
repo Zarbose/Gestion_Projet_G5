@@ -1,0 +1,160 @@
+main input {
+    white-space: normal;
+	margin: auto;
+}
+
+main {
+    display: grid;
+    grid-template-areas:
+	  "nav       nav         nav"
+      "video	video	chatRoom"
+      "buttons	buttons	chatRoom"
+    ;
+	grid-template-rows: max-content max-content 15%;
+	grid-template-columns: 1fr 1fr 1fr;
+	height: calc(100vh - 17px);
+}
+main section#video, main section#buttons, main section#chatRoom {
+	border: 0.75em solid grey;
+}
+main section#video, main section#buttons {
+	padding: 0.25em;
+}
+main section#video video {
+	max-width: calc(800em / 60);
+	max-height: calc(600em / 60);
+	background-image: url("./src/img/noWebcam.svg");
+	background-position: center;
+	background-size: 60%;
+	background-repeat: no-repeat;
+}
+
+main section#video {
+    grid-area: video;
+
+	display: flex;
+	flex-flow: wrap row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+main section#nav {
+	grid-area: nav;
+}
+
+main section#nav nav{
+	grid-area: nav;
+	background-color: #00345F; 
+	z-index: 9999;
+}
+
+main section#buttons {
+    grid-area: buttons;
+	border-top: none;
+}
+
+main section#buttons, main section#buttons form {
+    display: flex;
+    flex-flow: nowrap row;
+    align-items: center;
+    justify-content: space-around;
+}
+main section#buttons form:first-child {
+	flex: 1;
+}
+
+main section#chatRoom {
+    grid-area: chatRoom;
+
+    display: grid;
+	grid-template-rows: 85% 15%;
+	align-items: center;
+	height: calc(100vh - 17px - 4em);
+}
+
+main section#chatRoom div#chatText {
+	overflow-y: scroll;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-flow: nowrap column;
+	justify-content: flex-start;
+	justify-items: center;
+}
+
+main section#chatRoom form#sendMessage {
+	background-color: lightgray;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-flow: wrap row;
+	justify-content: space-around;
+	justify-items: center;
+}
+
+main section#chatRoom form #messageToSend {
+	min-width: 70%;
+}
+
+.TextZone {
+	display: block;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .375rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.SelectZone {
+	display: block;
+	padding: .375rem 2.25rem .375rem .75rem;
+	-moz-padding-start: calc(0.75rem - 3px);
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #212529;
+	background-color: #fff;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right .75rem center;
+	background-size: 16px 12px;
+	border: 1px solid #ced4da;
+	border-radius: .375rem;
+	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+.message {
+	box-sizing: border-box;
+	padding: 0.5rem 1rem;
+	margin: 1rem;
+	background: rgb(215, 213, 213);
+	border-radius: 1.125rem 1.125rem 1.125rem 0;
+	/* min-height: 2.25rem; */
+	width: fit-content;
+	max-width: 66%;
+	box-shadow: 0 0 2rem rgba(0, 0, 0, 0.075), 0rem 1rem 1rem -1rem rgba(0, 0, 0, 0.1);
+	overflow-wrap: break-word;
+	hyphens: auto;
+}
+
+.messageSend {
+	margin: 1rem 1rem 1rem auto;
+    border-radius: 1.125rem 1.125rem 0 1.125rem;
+    background: rgb(80, 80, 80);
+    color: white;
+}
+
+.infoMessage {
+	padding: 3px;
+	margin-left: 1rem;
+}
