@@ -1,9 +1,8 @@
 {
+	"extends": "@tsconfig/node18/tsconfig.json",
     "compilerOptions": {
-		"target": "ES6",
-		"module": "ESNext",
 		"sourceMap": true,
-		"moduleResolution": "classic",
-		"outDir": "./www/src/js/transpiler"
-    }
+		"outDir": "./transpiler"
+    },
+	"exclude": [ "www" ]
 }

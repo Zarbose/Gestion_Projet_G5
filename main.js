@@ -1,4 +1,8 @@
-const { HttpsServer, HttpServer, WssServer } = require("./Server");
+const { HttpsServer, HttpServer, WssServer } = require("./transpiler/Server");
+
+console.log(process.argv[0]);
+console.log(process.argv[1]);
+console.log(process.argv[2]);
 
 const httpsServer = new HttpsServer();
 const httpServer = new HttpServer();
