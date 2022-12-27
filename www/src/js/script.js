@@ -22,6 +22,12 @@ const login = (state) => {
 		for (const element of form.elements) {
 			element.disabled = true;
 		}
+		const message = "entering";
+		chat(user, message);
+		wssClient.sendJSON({
+			type: "message",
+			message: message
+		});
 	}
 	else if (state === "user") {
 		formWarning("newUser", "Nom d'utilisateur·rice déjà existant dans ce channel !");
@@ -122,12 +128,6 @@ document.getElementById("choose").addEventListener("submit", () => {
 	iceClient.setLogin(channel, user);
 	wssClient.sendJSON({
 		type: "login"
-	});
-	const message = "entering";
-	chat(user, message);
-	wssClient.sendJSON({
-		type: "message",
-		message: message
 	});
 });
 
