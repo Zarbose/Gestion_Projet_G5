@@ -6,7 +6,7 @@ main input {
 main {
     display: grid;
     grid-template-areas:
-	  "nav       nav         nav"
+	  "nav		nav		nav"
       "video	video	chatRoom"
       "buttons	buttons	chatRoom"
     ;
