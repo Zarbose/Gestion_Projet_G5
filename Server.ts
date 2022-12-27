@@ -87,7 +87,7 @@ interface SocketsDict {
 
 export class WssServer {
 	private server: WebSocketServer;
-	private sockets: SocketsDict = {};
+	public sockets: SocketsDict = {};
 
 	constructor(httpsServer: HttpsServer) {
 		this.server = new WebSocket.Server({
@@ -174,7 +174,7 @@ export class WssServer {
 						});
 					}
 				}
-				else throw new HttpError(406, "No channel");
+				else throw new HttpError(406, "No channel", data?.type);
 				break;
 			}
 		} catch (error) {

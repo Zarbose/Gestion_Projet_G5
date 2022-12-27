@@ -1,14 +1,10 @@
-import { WssClient, IceClient } from "./transpiler/Client.js";
+import { IceClient, WssClient } from "./Client.js";
 
 let channel = "undefined";
 let user = "local";
-const login = (state) => {
-	/**
-	 * @param {string} id 
-	 * @param {string} msg 
-	 */
-	function formWarning(id, msg) {
-		const input = document.getElementById(id);
+const login = (state :string) => {
+	function formWarning(id: string, msg: string) {
+		const input = document.getElementById(id) as HTMLInputElement;
 		input.setCustomValidity(msg);
 		input.reportValidity();
 		input.addEventListener("input", () => {
@@ -18,7 +14,7 @@ const login = (state) => {
 
 	}
 	if (state === "success") {
-		let form  = document.getElementById("choose");
+		let form  = document.getElementById("choose") as HTMLFormElement;
 		for (const element of form.elements) {
 			element.disabled = true;
 		}
@@ -33,7 +29,7 @@ const login = (state) => {
 		formWarning("newChannel", "Erreur lors de l'enregitrement !");
 	}
 };
-const chat = (newUser, message) => {
+const chat = (newUser: string, message: string) => {
 	if (message == "entering"){
 		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: green"><small>&#10132; ${newUser} est entrée</small></div>`);
 	}
@@ -49,7 +45,7 @@ const chat = (newUser, message) => {
 		}
 	}
 };
-const videoTrack = (streams) => {
+const videoTrack = (streams: MediaStream[]) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
 	const videoChannel = document.getElementById("videoChannel");
 	const video = document.createElement("video");
@@ -64,7 +60,7 @@ const videoTrack = (streams) => {
 };
 
 
-const iceClient = new IceClient();
+const iceClient = new IceClient;
 const wssClient = new WssClient(iceClient);
 iceClient.wssClient = wssClient;
 wssClient.start(login, chat);
@@ -80,7 +76,7 @@ navigator.mediaDevices.getUserMedia({
 	},
 	audio: true
 }).then(mediaStream => {
-	const video = document.getElementById("webcam");
+	const video = document.getElementById("webcam") as HTMLVideoElement;
 	video.muted = true;
 	video.controls = false;
 	video.autoplay = true;
@@ -101,7 +97,7 @@ document.getElementById("sendVideo").addEventListener("submit", () => {
 });
 
 document.getElementById("sendMessage").addEventListener("submit", () => {
-	const message = document.getElementById("messageToSend").value;
+	const message = (document.getElementById("messageToSend") as HTMLInputElement).value;
 	chat(user, message);
 	wssClient.sendJSON({
 		type: "message",
@@ -110,11 +106,11 @@ document.getElementById("sendMessage").addEventListener("submit", () => {
 });
 
 document.getElementById("choose").addEventListener("submit", () => {
-	const existingChannels = document.getElementById("existingChannels").value;
-	const newChannel = document.getElementById("newChannel").value;
-	user = document.getElementById("newUser").value;
+	const existingChannels = document.getElementById("existingChannels") as HTMLSelectElement;
+	const newChannel = (document.getElementById("newChannel") as HTMLInputElement).value;
+	user = (document.getElementById("newUser") as HTMLInputElement).value;
 	if (!existingChannels.disabled) {
-		channel = newChannel ? newChannel : existingChannels;
+		channel = newChannel ? newChannel : existingChannels.value;
 	}
 	else {
 		channel = newChannel;
@@ -133,7 +129,7 @@ document.getElementById("choose").addEventListener("submit", () => {
 });
 
 fetch(`${window.location.origin}/API?channels`).then(response => {
-	const input = document.getElementById("existingChannels");
+	const input = document.getElementById("existingChannels") as HTMLInputElement;
 	response.json().then(json => {
 		if (json.length != 0) {
 			for (const distantChannel of json) {
@@ -142,7 +138,7 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 		}
 		else {
 			input.disabled = true;
-			document.getElementById("newChannel").required = true;
+			(document.getElementById("newChannel") as HTMLInputElement).required = true;
 		}
 	});
 });

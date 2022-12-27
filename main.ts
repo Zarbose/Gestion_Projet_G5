@@ -1,4 +1,4 @@
-const { HttpsServer, HttpServer, WssServer } = require("./transpiler/Server");
+import { HttpsServer, HttpServer, WssServer } from "./Server";
 
 console.log(process.argv[0]);
 console.log(process.argv[1]);

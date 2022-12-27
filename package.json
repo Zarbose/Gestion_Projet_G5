@@ -4,9 +4,9 @@
   "description": "Gestion de Projets - M1 INFO - Groupe 5",
   "main": "main.js",
   "scripts": {
-    "start": "npm run transpile; node main.js",
+    "start": "npm run transpile; node transpiler/main.js",
     "transpile": "npx tsc -p ./tsconfig.json; npx tsc -p ./www/tsconfig.json",
-    "dirty": "node main.js",
+    "dirty": "node transpiler/main.js",
     "eslint": "npm init @eslint/config"
   },
   "repository": "git@github.com:Zarbose/Gestion_Projet_G5.git",

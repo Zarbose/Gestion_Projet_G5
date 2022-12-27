@@ -94,18 +94,12 @@ interface RTCPeerConnectionDict {
 
 export class IceClient extends Login {
 	private rtcPeerConnections: RTCPeerConnectionDict = {};
-	private wssClient: WssClient;
+	public wssClient: WssClient;
 	private videoTrack: (arg0: readonly MediaStream[]) => void;
 	private srcObject: MediaStream;
 
-
-	// set wssClient(wssClient: WssClient) {
-	// 	this.wssClient = wssClient;
-	// }
-
 	constructor() {
 		super();
-		// TODO: script.js to script.ts
 		this.srcObject = new MediaStream();
 	}
 
