@@ -45,14 +45,13 @@ export class WssClient extends Login {
 			message.data.text().then((string: string) => {
 				const data = JSON.parse(string);
 			
-				console.info("Socket received", data.type);
+				// console.info("WebSocket received", data.type);
 		
 				switch(data.type) {
 				case "message":
 					chat(data.user, data.message);
 					break;
 				case "RTCPeerOffer":
-					// console.log(`Channel ${data.type}: RTCPeerOffer`, new RTCSessionDescription(data.offer));
 					this.iceClient.peerOffer(new RTCSessionDescription(data.offer), data.user);
 					break;
 				case "RTCPeerAnswer": {
@@ -117,6 +116,7 @@ export class IceClient extends Login {
 		this.rtcPeerConnections[newUser].connection.createOffer().then(offer => 
 			this.rtcPeerConnections[newUser].connection.setLocalDescription(offer)
 		).then(() => {
+			console.info("Sending RTCPeerOffer to", newUser)
 			this.wssClient.sendJSON({
 				type: "RTCPeerOffer",
 				recipient: newUser,
@@ -146,20 +146,29 @@ export class IceClient extends Login {
 				connection: new RTCPeerConnection(),
 				fullfilled: false
 			};
+			this.rtcPeerConnections[newUser].connection.addEventListener("icecandidate", (event) => {
+				console.info("Sending new IceCandidate to", newUser, event.candidate);
+				if (event.candidate) {
+					this.wssClient.sendJSON({
+						type: "IceCandidate",
+						recipient: newUser,
+						candidate: event.candidate.toJSON()
+					});
+				}
+			});
+			this.rtcPeerConnections[newUser].connection.ontrack = (event) => {
+				if (event.track.kind === "audio") {
+					console.log("Received audio MediaStreamTrack from", newUser);
+					// TODO: integrate a distinct audio stream with an audio tag if time remains
+				}
+				else {
+					this.videoTrack(event.streams);
+				}
+			};
 		}
 		else {
 			console.warn("TODO: fullfilled: true")
 		}
-		this.rtcPeerConnections[newUser].connection.addEventListener("icecandidate", (event) => {
-			console.info("Sending new IceCandidate", event.candidate);
-			if (event.candidate) {
-				this.wssClient.sendJSON({
-					type: "IceCandidate",
-					recipient: newUser,
-					candidate: event.candidate.toJSON()
-				});
-			}
-		});
 		this.rtcPeerConnections[newUser].connection.setRemoteDescription(offer).then(() => {
 			this.rtcPeerConnections[newUser].connection.createAnswer().then(answer => {
 				this.rtcPeerConnections[newUser].connection.setLocalDescription(answer).then(() => {
@@ -174,36 +183,24 @@ export class IceClient extends Login {
 		}).catch(error =>
 			console.error(error, offer)
 		);
-		this.rtcPeerConnections[newUser].connection.ontrack = (event) => {
-			if (event.track.kind === "audio") {
-				console.log("Received audio MediaStreamTrack");
-			}
-			else {
-				this.videoTrack(event.streams);
-			}
-		};
 	}
 
 	peerAnswer(answer: RTCSessionDescription, newUser: string) {
-		console.log(this.rtcPeerConnections);
 		if (!Object.hasOwnProperty.call(this.rtcPeerConnections, newUser)) {
 			throw new ReferenceError(`${newUser} is not in ${this.rtcPeerConnections}`);
 		}
 		else {
 			this.rtcPeerConnections[newUser].connection.setRemoteDescription(answer).then(
-				// console.info("RTCPeerConnection established", this.rtcPeerConnections)
+				console.info("RTCPeerConnection established with", newUser, this.rtcPeerConnections)
 			).catch(error =>
 				console.error(error, newUser, answer)
 			);
-		}
-
-		console.log(this.rtcPeerConnections, newUser);
-		
+		}		
 	}
 
 	newCandidate(candidate: RTCIceCandidate, newUser: string) {
 		this.rtcPeerConnections[newUser].connection.addIceCandidate(candidate).then(
-			// console.log("IceCandidate added", this.rtcPeerConnections)
+			console.info("IceCandidate added of", newUser, this.rtcPeerConnections)
 		).catch(error =>
 			console.error(error, candidate, this.rtcPeerConnections[newUser].connection.localDescription)
 		);
