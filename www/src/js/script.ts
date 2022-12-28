@@ -14,9 +14,9 @@ const login = (state :string) => {
 
 	}
 	if (state === "success") {
-		let form  = document.getElementById("choose") as HTMLFormElement;
+		const form  = document.getElementById("choose") as HTMLFormElement;
 		for (const element of form.elements) {
-			element.disabled = true;
+			(element as HTMLInputElement|HTMLSelectElement).disabled = true;
 		}
 	}
 	else if (state === "user") {
@@ -45,11 +45,11 @@ const chat = (newUser: string, message: string) => {
 		}
 	}
 };
-const videoTrack = (streams: MediaStream[]) => {
+const videoTrack = (streams: MediaStream[], newUser: string) => { //TODO: distant user login displayed
 	if (streams.length <= 0) throw new Error("Streams are empty !");
 	const videoChannel = document.getElementById("videoChannel");
 	const video = document.createElement("video");
-	video.muted = true; //FIXME: debug only, true in production
+	video.muted = false; //TODO: Mute/Unmute controls
 	video.controls = false;
 	video.autoplay = true;
 	video.srcObject = streams[0];
@@ -60,8 +60,17 @@ const videoTrack = (streams: MediaStream[]) => {
 };
 
 
-const iceClient = new IceClient;
-const wssClient = new WssClient(iceClient);
+const iceClient = new IceClient(videoTrack);
+let wssClient: WssClient;
+fetch(`${window.location.origin}/src/WebSocketConfig.json`).then(response => {
+	response.json().then(config => {
+		wssClient = new WssClient(iceClient, config.ip, config.port);
+	});
+}).catch(error => {
+	wssClient = new WssClient(iceClient);
+	console.warn(error);
+});
+
 iceClient.wssClient = wssClient;
 wssClient.start(login, chat);
 
@@ -81,9 +90,7 @@ navigator.mediaDevices.getUserMedia({
 	video.controls = false;
 	video.autoplay = true;
 	video.srcObject = mediaStream;
-
-
-	iceClient.start(videoTrack, video.srcObject);
+	iceClient.srcObject = mediaStream;
 }).catch(error => {
 	if (error.name === "NotAllowedError") {
 		console.warn("Webcam", error.message);

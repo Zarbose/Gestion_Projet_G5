@@ -1,6 +1,6 @@
 interface ParametersDict {
 	[index: string]: string|number|undefined,
-};
+}
 
 export class HttpError extends Error {
 	public parameters: ParametersDict;

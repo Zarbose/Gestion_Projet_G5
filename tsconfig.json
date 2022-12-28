@@ -4,5 +4,5 @@
 		"sourceMap": true,
 		"outDir": "./transpiler"
     },
-	"exclude": [ "www" ]
+	"exclude": [ "www", "node_modules" ]
 }

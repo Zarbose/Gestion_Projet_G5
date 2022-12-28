@@ -1,23 +1,27 @@
 import http = require("http");
 
-export class HttpServer {
-	private server: http.Server;
-	private unsecurePort: number;
-	private securePort: number;
+abstract class Server {
+	protected static _unsecurePort = 8080;
+	protected static _securePort = 8443;
+}
 
-	constructor(securePort: number = 8443, unsecurePort: number = 8080) {
-		this.securePort = securePort;
-		this.unsecurePort = unsecurePort;
+export class HttpServer extends Server{
+	private server: http.Server;
+
+	constructor(securePort?: number, unsecurePort?: number) {
+		super();
+		if (securePort) Server._securePort = securePort;
+		if (unsecurePort) Server._unsecurePort = unsecurePort;
 		this.server = http.createServer((req, res) => {
 			const url = new URL(`http://${req.headers.host}${req.url}`);
-			res.writeHead(301, {"Location": `https://${url.hostname}:${this.securePort}${url.pathname}`});
+			res.writeHead(301, {"Location": `https://${url.hostname}:${Server._securePort}${url.pathname}`});
 			res.end();
 		});
 	}
 
 	start() {
-		this.server.listen(this.unsecurePort, () => {
-			console.log(`HTTP Server started on port ${this.unsecurePort} redirect to port ${this.securePort}`);
+		this.server.listen(Server._unsecurePort, () => {
+			console.info(`HTTP Server started on port ${Server._unsecurePort} redirect to port ${Server._securePort}`);
 		});
 	}
 }
@@ -27,25 +31,25 @@ import https = require("https");
 import express = require("express");
 import { HttpError, LoginError } from "./Errors";
 
-export class HttpsServer {
+export class HttpsServer extends Server {
 	private app = express();
-	private securePort: number;
 	public server: https.Server;
 	private SSL = {
 		key: fs.readFileSync("./ssl/key.pem"),
 		cert: fs.readFileSync("./ssl/cert.pem")
 	};
 
-	constructor(securePort: number = 8443) {
-		this.securePort = securePort;
+	constructor(securePort?: number) {
+		super();
+		if (securePort) Server._securePort = securePort;
 		this.server = https.createServer(this.SSL, this.app);
 		// Handle requests for static files
 		this.app.use(express.static("www"));
 	}
 
 	start() {
-		this.server.listen(this.securePort, () => {
-			console.log(`HTTPS Server started on port ${this.securePort}`);
+		this.server.listen(Server._securePort, () => {
+			console.info(`HTTPS Server started on port ${Server._securePort}`);
 		});
 	}
 
@@ -76,7 +80,6 @@ export class HttpsServer {
 }
 
 import { RawData, WebSocket, WebSocketServer } from "ws";
-import { AddressInfo } from 'net'
 
 interface SocketsDict {
 	[channel: string]: {
@@ -85,17 +88,18 @@ interface SocketsDict {
 	}[];
 }
 
-export class WssServer {
+export class WssServer extends Server {
 	private server: WebSocketServer;
 	public sockets: SocketsDict = {};
 
 	constructor(httpsServer: HttpsServer) {
+		super();
 		this.server = new WebSocket.Server({
 			server: httpsServer.server
 		});
 
 		this._connection();
-		console.log(`WebSocket Server started on ${(httpsServer.server.address() as AddressInfo).port}`);
+		console.info(`WebSocket Server following HttpsServer on port ${Server._securePort}`);
 	}
 
 	private _connection() {
@@ -119,7 +123,7 @@ export class WssServer {
 					)
 				)
 			);
-		};
+		}
 		try {
 			const data = JSON.parse(buffer.toString());
 			if ( (data.type !== "login") && (!data.type && !data.channel && !data.user) ) {
@@ -174,7 +178,7 @@ export class WssServer {
 						});
 					}
 				}
-				else throw new HttpError(406, "No channel", data?.type);
+				else throw new HttpError(406, "No channel", `Type is ${data?.type}`);
 				break;
 			}
 		} catch (error) {
