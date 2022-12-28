@@ -93,7 +93,7 @@ interface RTCPeerConnectionDict {
 
 export class IceClient extends Login {
 	private rtcPeerConnections: RTCPeerConnectionDict = {};
-	public wssClient: WssClient;
+	public wssClient!: WssClient;
 	private videoTrack: (arg0: readonly MediaStream[], arg1: string) => void;
 	public srcObject: MediaStream;
 
@@ -115,7 +115,7 @@ export class IceClient extends Login {
 			this.wssClient.sendJSON({
 				type: "RTCPeerOffer",
 				recipient: newUser,
-				offer: this.rtcPeerConnections[newUser].connection.localDescription.toJSON()
+				offer: this.rtcPeerConnections[newUser].connection.localDescription?.toJSON()
 			});
 		});
 	}
@@ -176,7 +176,7 @@ export class IceClient extends Login {
 					this.wssClient.sendJSON({
 						type: "RTCPeerAnswer",
 						recipient: newUser,
-						answer: this.rtcPeerConnections[newUser].connection.localDescription.toJSON()
+						answer: this.rtcPeerConnections[newUser].connection.localDescription?.toJSON()
 					});
 
 				});

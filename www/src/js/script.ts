@@ -31,23 +31,23 @@ const login = (state :string) => {
 };
 const chat = (newUser: string, message: string) => {
 	if (message == "entering"){
-		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: green"><small>&#10132; ${newUser} est entrée</small></div>`);
+		(document.getElementById("chatText") as HTMLDivElement).insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: green"><small>&#10132; ${newUser} est entrée</small></div>`);
 	}
 	else if(message == "leaving"){
-		document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>`);
+		(document.getElementById("chatText") as HTMLDivElement).insertAdjacentHTML("afterbegin", `<div class="infoMessage" style="color: red"><small>&#10132; ${newUser} est sortie</small></div>`);
 	}
 	else{
 		if (newUser == user){
-			document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message messageSend">${message}</div>`);
+			(document.getElementById("chatText") as HTMLDivElement).insertAdjacentHTML("afterbegin", `<div class="message messageSend">${message}</div>`);
 		}
 		else{
-			document.getElementById("chatText").insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
+			(document.getElementById("chatText") as HTMLDivElement).insertAdjacentHTML("afterbegin", `<div class="message"><small>~ ${newUser}<br/></small>${message}</div>`);
 		}
 	}
 };
-const videoTrack = (streams: MediaStream[], newUser: string) => { //TODO: distant user login displayed
+const videoTrack = (streams: readonly MediaStream[], newUser: string) => { //TODO: distant user login displayed
 	if (streams.length <= 0) throw new Error("Streams are empty !");
-	const videoChannel = document.getElementById("videoChannel");
+	const videoChannel = document.getElementById("videoChannel") as HTMLDivElement;
 	const video = document.createElement("video");
 	video.muted = false; //TODO: Mute/Unmute controls
 	video.controls = false;
@@ -60,8 +60,8 @@ const videoTrack = (streams: MediaStream[], newUser: string) => { //TODO: distan
 };
 
 
-const iceClient = new IceClient(videoTrack);
 let wssClient: WssClient;
+const iceClient = new IceClient(videoTrack);
 fetch(`${window.location.origin}/src/WebSocketConfig.json`).then(response => {
 	response.json().then(config => {
 		wssClient = new WssClient(iceClient, config.ip, config.port);
@@ -69,10 +69,11 @@ fetch(`${window.location.origin}/src/WebSocketConfig.json`).then(response => {
 }).catch(error => {
 	wssClient = new WssClient(iceClient);
 	console.warn(error);
+}).finally(() => {
+	iceClient.wssClient = wssClient;
+	wssClient.start(login, chat);
 });
 
-iceClient.wssClient = wssClient;
-wssClient.start(login, chat);
 
 navigator.mediaDevices.getUserMedia({
 	video: {
@@ -99,11 +100,11 @@ navigator.mediaDevices.getUserMedia({
 	}
 });
 
-document.getElementById("sendVideo").addEventListener("submit", () => {
+(document.getElementById("sendVideo") as HTMLFormElement).addEventListener("submit", () => {
 	iceClient.sendVideo();
 });
 
-document.getElementById("sendMessage").addEventListener("submit", () => {
+(document.getElementById("sendMessage") as HTMLFormElement).addEventListener("submit", () => {
 	const message = (document.getElementById("messageToSend") as HTMLInputElement).value;
 	chat(user, message);
 	wssClient.sendJSON({
@@ -112,7 +113,7 @@ document.getElementById("sendMessage").addEventListener("submit", () => {
 	});
 });
 
-document.getElementById("choose").addEventListener("submit", () => {
+(document.getElementById("choose") as HTMLFormElement).addEventListener("submit", () => {
 	const existingChannels = document.getElementById("existingChannels") as HTMLSelectElement;
 	const newChannel = (document.getElementById("newChannel") as HTMLInputElement).value;
 	user = (document.getElementById("newUser") as HTMLInputElement).value;
