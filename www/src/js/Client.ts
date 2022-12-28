@@ -104,6 +104,9 @@ export class IceClient extends Login {
 	}
 
 	private _sendRtcPeerOffer(newUser: string) {
+		if (!this.srcObject) throw new ReferenceError("srcObject is empty !");
+		if (!this.wssClient) throw new ReferenceError("wssClient is empty !");
+
 		console.info(this.srcObject.getTracks());
 		this.rtcPeerConnections[newUser].connection.addTrack(this.srcObject.getVideoTracks()[0], this.srcObject);
 		this.rtcPeerConnections[newUser].connection.addTrack(this.srcObject.getAudioTracks()[0], this.srcObject);
@@ -120,12 +123,13 @@ export class IceClient extends Login {
 		});
 	}
 
-	private _initializedRTCPeerConnection(newUser: string) {
+	private _initializeRTCPeerConnection(newUser: string) {
 		if (Object.hasOwnProperty.call(this.rtcPeerConnections, newUser)) {
 			if (this.rtcPeerConnections[newUser].fullfilled) {
 				throw new Error(`${newUser} is already fullfilled`);
 			}
 			else this.rtcPeerConnections[newUser].fullfilled = true;
+			console.log(this.rtcPeerConnections);
 		}
 		else {
 			this.rtcPeerConnections[newUser] = {
@@ -160,15 +164,17 @@ export class IceClient extends Login {
 		fetch(`${window.location.origin}/API?users&channel=${Login._channel}`).then(response => {
 			response.json().then(users => {
 				users.forEach((user: string) => {
-					this._initializedRTCPeerConnection(user);
-					this._sendRtcPeerOffer(user);					
+					if (user !== Login._user) {
+						this._initializeRTCPeerConnection(user);
+						this._sendRtcPeerOffer(user);
+					}
 				});
 			});
 		});
 	}
 
 	peerOffer(offer: RTCSessionDescription, newUser: string) {
-		this._initializedRTCPeerConnection(newUser);
+		this._initializeRTCPeerConnection(newUser);
 
 		this.rtcPeerConnections[newUser].connection.setRemoteDescription(offer).then(() => {
 			this.rtcPeerConnections[newUser].connection.createAnswer().then(answer => {

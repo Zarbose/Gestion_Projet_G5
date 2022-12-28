@@ -1,6 +1,6 @@
 import { IceClient, WssClient } from "./Client.js";
 
-let channel = "undefined";
+let channel = "N/A";
 let user = "local";
 const login = (state :string) => {
 	function formWarning(id: string, msg: string) {
@@ -65,13 +65,14 @@ const iceClient = new IceClient(videoTrack);
 fetch(`${window.location.origin}/src/WebSocketConfig.json`).then(response => {
 	response.json().then(config => {
 		wssClient = new WssClient(iceClient, config.ip, config.port);
+		iceClient.wssClient = wssClient;
+		wssClient.start(login, chat);
 	});
 }).catch(error => {
 	wssClient = new WssClient(iceClient);
-	console.warn(error);
-}).finally(() => {
 	iceClient.wssClient = wssClient;
 	wssClient.start(login, chat);
+	console.warn(error);
 });
 
 
@@ -95,6 +96,7 @@ navigator.mediaDevices.getUserMedia({
 }).catch(error => {
 	if (error.name === "NotAllowedError") {
 		console.warn("Webcam", error.message);
+		alert("Cette aplication web ne peut pas entièrement fonctionner sans les autorisations pour accéder à la webcam et son audio.");
 	} else {
 		throw error;
 	}
