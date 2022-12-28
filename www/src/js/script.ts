@@ -63,16 +63,19 @@ const videoTrack = (streams: readonly MediaStream[], newUser: string) => { //TOD
 let wssClient: WssClient;
 const iceClient = new IceClient(videoTrack);
 fetch(`${window.location.origin}/src/WebSocketConfig.json`).then(response => {
-	response.json().then(config => {
-		wssClient = new WssClient(iceClient, config.ip, config.port);
-		iceClient.wssClient = wssClient;
-		wssClient.start(login, chat);
-	});
+	if (response.ok) {
+		response.json().then(config => {
+			wssClient = new WssClient(iceClient, config.ip, config.port);
+			iceClient.wssClient = wssClient;
+			wssClient.start(login, chat);
+		});
+	}
+	else throw new Error(`${response.status} ${response.statusText}`);
 }).catch(error => {
 	wssClient = new WssClient(iceClient);
 	iceClient.wssClient = wssClient;
 	wssClient.start(login, chat);
-	console.warn(error);
+	console.warn("WebSocketConfig.json", error);
 });
 
 
