@@ -108,8 +108,13 @@ export class IceClient extends Login {
 		if (!this.wssClient) throw new ReferenceError("wssClient is empty !");
 
 		console.info(this.srcObject.getTracks());
-		this.rtcPeerConnections[newUser].connection.addTrack(this.srcObject.getVideoTracks()[0], this.srcObject);
-		this.rtcPeerConnections[newUser].connection.addTrack(this.srcObject.getAudioTracks()[0], this.srcObject);
+		try {
+			this.rtcPeerConnections[newUser].connection.addTrack(this.srcObject.getVideoTracks()[0], this.srcObject);
+			this.rtcPeerConnections[newUser].connection.addTrack(this.srcObject.getAudioTracks()[0], this.srcObject);
+		} catch (error) {
+			this.rtcPeerConnections[newUser].fullfilled = false;
+			throw new Error(`Already sent ${error}`);
+		}
 
 		this.rtcPeerConnections[newUser].connection.createOffer().then(offer => 
 			this.rtcPeerConnections[newUser].connection.setLocalDescription(offer)

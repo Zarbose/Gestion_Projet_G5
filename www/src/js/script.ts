@@ -53,7 +53,9 @@ const chat = (newUser: string, message: string) => {
 };
 const videoTrack = (streams: readonly MediaStream[], newUser: string) => { //TODO: distant user login displayed
 	if (streams.length <= 0) throw new Error("Streams are empty !");
-	const videoChannel = document.getElementById("videoChannel") as HTMLDivElement;
+	const webcam = document.createElement("div");
+	webcam.classList.add("webcam");
+	webcam.classList.add(newUser);
 	const video = document.createElement("video");
 	video.muted = false; //TODO: Mute/Unmute controls
 	video.controls = false;
@@ -61,7 +63,26 @@ const videoTrack = (streams: readonly MediaStream[], newUser: string) => { //TOD
 	video.srcObject = streams[0];
 	video.width = 400;
 	video.height = 200;
-	videoChannel.appendChild(video);
+	webcam.appendChild(video);
+	const userName = document.createElement("span");
+	userName.classList.add("userName");
+	userName.textContent = newUser;
+	webcam.appendChild(userName);
+	const mute = document.createElement("span");
+	mute.classList.add("mute");
+	mute.textContent = "🔊";
+	mute.addEventListener("click", () => {
+		if (mute.textContent === "🔊") {
+			mute.textContent = "🔈";
+			video.muted = true;
+		}
+		else {
+			mute.textContent = "🔊";
+			video.muted = false;
+		}
+	});
+	webcam.appendChild(mute);
+	(document.getElementById("video") as HTMLDivElement).appendChild(webcam);
 	console.info("New stream added in DOM");
 };
 
@@ -96,7 +117,7 @@ navigator.mediaDevices.getUserMedia({
 	},
 	audio: true
 }).then(mediaStream => {
-	const video = document.getElementById("webcam") as HTMLVideoElement;
+	const video = document.querySelector("main section#video div.webcam#local video") as HTMLVideoElement;
 	video.muted = true;
 	video.controls = false;
 	video.autoplay = true;
@@ -136,6 +157,7 @@ navigator.mediaDevices.getUserMedia({
 	}
 	wssClient.setLogin(channel, user);
 	iceClient.setLogin(channel, user);
+	(document.querySelector("section#video div.webcam#local span.userName") as HTMLSpanElement).textContent = user;
 	wssClient.sendJSON({
 		type: "login"
 	});
