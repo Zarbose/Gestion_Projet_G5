@@ -1,0 +1,59 @@
+main input {
+    white-space: normal;
+	margin: auto;
+}
+
+main {
+    display: grid;
+    grid-template-areas:
+	  "nav"
+      "text_zone"
+    ;
+    grid-template-rows: max-content 1fr;
+	height: calc(100vh - 0px);
+}
+
+/* Section nav */
+main section#nav {
+	grid-area: nav;
+}
+
+main section#nav nav{
+	grid-area: nav;
+	background-color: #00345F; 
+	z-index: 9999;
+}
+
+/* Section text_zone */
+main section#text_zone {
+	grid-area: text_zone;
+    height: 100%;
+	width: 100%;
+    overflow-y: scroll;
+}
+div.article {
+    padding: 1em;
+    font-family:Calibri ;
+}
+
+div.title {
+    text-decoration: underline;
+    font-size: x-large;
+    text-indent: 1em;
+}
+
+div.sub_title {
+    font-weight: bold;
+    font-size: large;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+div.contents {
+    text-indent: 1em;
+}
+
+div.image {
+    text-align: center;
+    font-style: italic;
+}
