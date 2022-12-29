@@ -51,13 +51,13 @@ const chat = (newUser: string, message: string) => {
 		}
 	}
 };
-const videoTrack = (streams: readonly MediaStream[], newUser: string) => { //TODO: distant user login displayed
+const newStreamToAdd = (streams: readonly MediaStream[], newUser: string) => {
 	if (streams.length <= 0) throw new Error("Streams are empty !");
 	const webcam = document.createElement("div");
 	webcam.classList.add("webcam");
 	webcam.classList.add(newUser);
 	const video = document.createElement("video");
-	video.muted = false; //TODO: Mute/Unmute controls
+	video.muted = false;
 	video.controls = false;
 	video.autoplay = true;
 	video.srcObject = streams[0];
@@ -85,10 +85,12 @@ const videoTrack = (streams: readonly MediaStream[], newUser: string) => { //TOD
 	(document.getElementById("video") as HTMLDivElement).appendChild(webcam);
 	console.info("New stream added in DOM");
 };
-
+const streamClosing = (newUser: string) => {
+	(document.querySelector(`main section#video div.webcam.${newUser}`) as HTMLDivElement).remove();
+};
 
 let wssClient: WssClient;
-const iceClient = new IceClient(videoTrack);
+const iceClient = new IceClient(newStreamToAdd, streamClosing);
 fetch(`${window.location.origin}/src/WebSocketConfig.json`).then(response => {
 	if (response.ok) {
 		response.json().then(config => {
@@ -179,6 +181,7 @@ fetch(`${window.location.origin}/API?channels`).then(response => {
 });
 
 window.addEventListener("beforeunload", () => {
+	iceClient.closeAll();
 	const message = "leaving";
 	chat(user, message);
 	wssClient.sendJSON({
