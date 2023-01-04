@@ -31,32 +31,3 @@ main section#text_zone {
 	width: 100%;
     overflow-y: scroll;
 }
-div.article {
-    padding: 1em;
-    font-family:Calibri ;
-}
-
-div.title {
-    text-decoration: underline;
-    font-size: x-large;
-    text-indent: 1em;
-}
-
-div.sub_title {
-    font-weight: bold;
-    font-size: large;
-    padding-top: 7px;
-    padding-bottom: 7px;
-}
-
-div.image {
-    text-align: center;
-    font-style: italic;
-}
-
-div.main_title {
-    text-align: center;
-    font-weight: bold;
-    font-size: x-large;
-    color: #4a86e8;
-}
