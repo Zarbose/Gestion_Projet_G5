@@ -62,7 +62,48 @@
 			</section>
 
             <section id="text_zone">
-                <div class="article" id="A1">
+                <div class="article">
+                    <div class="title" style="text-align: center;">
+                        Atelier “Communication entre deux clients via un serveur web”<br/>
+                    </div>
+                    Bienvenue sur la page principale de notre atelier 👋<br/>
+                    Cet atelier a pour but de vous faire découvrir (très simplement) comment se passe la communication en direct entre deux appareils 💻<br/><br/>
+
+                    Ce type de communication chat/vidéo en direct est très répandue (Messenger, Skype, Zoom, Teams, Snapchat…), mais savez-vous comment cela fonctionne ? <br/><br/>
+
+                    Pour cela, nous avons créé une petite page web sur ce site, sur laquelle vous pouvez communiquer entre les deux PC portables qui sont devant vous.<br/>
+                
+                    <br/><b>Comment fonctionne cette communication ?</b> 🤔
+                    <div class="image">
+                        <img src="src/img/schema_reseau_gdp.png" alt="Failed to load image">
+                        <p>Le schéma ci-dessus résume assez bien le fonctionnement de notre application.</p>
+                    </div>
+
+                    <p>
+                        En effet, tout passe par un “serveur”. Il s'agit simplement d'un ordinateur qui va traiter les données provenant 
+                        des deux PC portables et va faire en sorte que la liaison se déroule bien. Les deux PC portables doivent tous les deux 
+                        connaître le serveur pour fonctionner mais ils n'ont pas besoin de se connaître entre eux au début car c'est le serveur 
+                        qui fait la liaison.
+                    </p>
+
+                    <p>
+                        Ce type de communication a un avantage, c'est qu'il n'est pas nécessaire de connaître l'adresse réseau de son 
+                        interlocuteur pour pouvoir l'appeler ! En effet, que vous soyez au McDo, dans une gare ou chez vous, votre adresse 
+                        réseau (ou adresse IP), va changer et il faut trouver un moyen de vous retrouver pour que l'appel fonctionne. Passer 
+                        par un serveur permet donc pour les deux PC d'avoir un “<b>point de rendez-vous</b>” pour pouvoir communiquer entre eux !
+                    </p>
+
+                    <p>
+                        Vous êtes donc actuellement connecté au serveur web de notre atelier 🤓 Celui-ci est un tout petit ordinateur appelé 
+                        Raspberry Pi, mais il est suffisamment puissant pour héberger une petite application comme la nôtre.
+                    </p>
+
+                    <p>
+                        Testez maintenant notre application via ce lien : <a href="index.html">ici</a>
+                    </p>
+                </div>
+
+                <!-- <div class="article" id="A1">
                     <div class="title">
                         Titre 1
                     </div>
@@ -82,48 +123,7 @@
                     <div class="contents">
                         Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
                     </div>
-                </div>
-                <div class="article" id="A2">
-                    <div class="title">
-                        Titre 2
-                    </div>
-                    <div class="sub_title" id="A2ST1">
-                        Sous titre 1
-                    </div>
-                    <div class="contents">
-                        Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-                    </div>
-                    <div class="sub_title" id="A2ST2">
-                        Sous titre 2
-                    </div>
-                    <div class="contents">
-                        Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-                    </div>
-                </div>
-                <div class="article" id="A3">
-                    <div class="title">
-                        Titre 3
-                    </div>
-                    <div class="sub_title" id="A3ST1">
-                        Sous titre 1
-                    </div>
-                    <div class="contents">
-                        Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-                    </div>
-                    <div class="sub_title" id="A3ST2">
-                        Sous titre 2
-                    </div>
-                    <div class="contents">
-                        Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-                    </div>
-                    <div class="image">
-                        <img src="src/img/schema_reseau_gdp.png" alt="Failed to load image">
-                        <p>Schémat réseau</p>
-                    </div>
-                    <div class="contents">
-                        Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.
-                    </div>
-                </div>
+                </div> -->
             </section>
 
         </main>
