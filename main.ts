@@ -1,6 +1,8 @@
 import { writeFileSync } from "node:fs";
 import { HttpsServer, HttpServer, WssServer } from "./Server";
 
+process.title = "Gestion_Projet_G5";
+
 if (process.argv[2]) {
 	try {
 		const url = new URL(`https://${process.argv[2]}`);
