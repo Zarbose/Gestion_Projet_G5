@@ -45,15 +45,18 @@ div.title {
 div.sub_title {
     font-weight: bold;
     font-size: large;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-div.contents {
-    text-indent: 1em;
+    padding-top: 7px;
+    padding-bottom: 7px;
 }
 
 div.image {
     text-align: center;
     font-style: italic;
+}
+
+div.main_title {
+    text-align: center;
+    font-weight: bold;
+    font-size: x-large;
+    color: #4a86e8;
 }
